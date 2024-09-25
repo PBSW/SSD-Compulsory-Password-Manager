@@ -2,13 +2,9 @@
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
-        <RootNamespace>PM_Application</RootNamespace>
+        <RootNamespace>PM_Domain</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\PM-Domain\PM-Domain.csproj" />
-    </ItemGroup>
 
 </Project>

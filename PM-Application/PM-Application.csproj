@@ -11,4 +11,9 @@
       <ProjectReference Include="..\PM-Domain\PM-Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="FluentValidation" Version="11.10.0" />
+      <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.10.0" />
+    </ItemGroup>
+
 </Project>

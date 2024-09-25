@@ -11,4 +11,8 @@
       <ProjectReference Include="..\PM-Application\PM-Application.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.8" />
+    </ItemGroup>
+
 </Project>

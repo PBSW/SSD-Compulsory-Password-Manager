@@ -1,35 +1,48 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, {useState, useEffect} from 'react';
+import {BrowserRouter as Router, Route, Routes, Navigate, Outlet} from 'react-router-dom';
+import {Container, Row, Col, Button} from 'react-bootstrap';
+import Login from './Pages/Login/Login.tsx'; // Separate login component
+import Home from './Pages/Home/home.tsx'; // Home page component (to be protected)
 
-function App() {
-  const [count, setCount] = useState(0)
+const App: React.FC = () => {
+    const [token, setToken] = useState<string | null>(null);
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    // Check if the user is already logged in on app load
+    useEffect(() => {
+        const storedToken = localStorage.getItem('jwtToken');
+        if (storedToken) {
+            setToken(storedToken);
+        }
+    }, []);
 
-export default App
+    const handleLogout = () => {
+        localStorage.removeItem('jwtToken');
+        setToken(null);
+    };
+
+    return (
+            <Router>
+                <Container fluid className="mt-5 w-100 h-100">
+                    <Routes>
+                        {/* Public Route */}
+                        <Route path="/login" element={<Login setToken={setToken}/>}/>
+
+                        {/* Protected Routes */}
+                        <Route path="/" element={<PrivateRoute token={token}/>}>
+                            <Route path="/" element={<Home handleLogout={handleLogout}/>}/>
+                        </Route>
+
+                        {/* Redirect any unknown routes to login */}
+                        <Route path="*" element={<Navigate to="/login" replace/>}/>
+                    </Routes>
+                </Container>
+            </Router>
+    );
+};
+
+// PrivateRoute Component to protect authenticated routes
+const PrivateRoute: React.FC<{ token: string | null }> = ({token}) => {
+    return token ? <Outlet/> : <Navigate to="/login" replace/>;
+};
+
+export default App;

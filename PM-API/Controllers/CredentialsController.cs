@@ -18,8 +18,15 @@ public class CredentialsController : ControllerBase
     
     [HttpPost]
     [Route("create")]
-    public CredentialResponse CreateCredentials([FromBody] CredentialRequest request)
+    public async Task<IActionResult> CreateCredentials([FromBody] CredentialRequest request)
     {
-        return _credentialsService.Create(request);
+        try
+        {
+            return Ok(await _credentialsService.Create(request));
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
     }
 }

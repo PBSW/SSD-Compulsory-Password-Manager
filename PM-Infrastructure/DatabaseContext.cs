@@ -12,5 +12,6 @@ public class DatabaseContext : DbContext
         
     }
     
+    public DbSet<ApplicationUser> UsersTable { get; set; }
     public DbSet<ServiceCredentials> CredentialsTable { get; set; }
 }

@@ -21,8 +21,15 @@ public class AuthController : ControllerBase
     
     [HttpPost]
     [Route("register")]
-    public RegisterResponse Register(RegisterRequest request)
+    public async Task<IActionResult> Register(RegisterRequest request)
     {
-        return _authenticationService.Register(request);
+        try
+        {
+            return Ok(await _authenticationService.Register(request));
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
     }
 }

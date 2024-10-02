@@ -6,7 +6,7 @@ namespace PM_Application;
 
 public class AuthenticationService : IAuthenticationService
 {
-    public RegisterResponse Register(RegisterRequest registerRequest)
+    public async Task<RegisterResponse> Register(RegisterRequest registerRequest)
     {
         throw new NotImplementedException();
     }

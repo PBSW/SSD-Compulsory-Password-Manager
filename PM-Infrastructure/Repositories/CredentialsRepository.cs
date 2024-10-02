@@ -11,7 +11,7 @@ public class CredentialsRepository : ICredentialsRepository
     {
         _dbContext = dbContext;
     }
-    public ServiceCredentials Create(ServiceCredentials credentials)
+    public Task<ServiceCredentials> Create(ServiceCredentials credentials)
     {
         throw new NotImplementedException();
     }

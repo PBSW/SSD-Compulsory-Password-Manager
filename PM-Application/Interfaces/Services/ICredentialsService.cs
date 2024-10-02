@@ -5,5 +5,5 @@ namespace PM_Application.Interfaces.Services;
 
 public interface ICredentialsService
 {
-    public CredentialResponse Create(CredentialRequest request);
+    public Task<CredentialResponse> Create(CredentialRequest request);
 }

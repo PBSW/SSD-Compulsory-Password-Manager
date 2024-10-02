@@ -9,5 +9,6 @@ public class Resolver
     public static void RegisterRepositoryLayer(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<ICredentialsRepository, CredentialsRepository>();
+        serviceCollection.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
     }
 }

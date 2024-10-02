@@ -14,7 +14,7 @@ public class CredentialsService : ICredentialsService
         _repository = repository;
     }
     
-    public CredentialResponse Create(CredentialRequest request)
+    public async Task<CredentialResponse> Create(CredentialRequest request)
     {
         throw new NotImplementedException();
     }

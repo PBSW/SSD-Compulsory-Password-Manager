@@ -1,7 +1,7 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using PM_Infrastructure;
+using PM_Application;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +13,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 
 builder.Services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
+
+PM_Application.DependencyResolver.DependencyResolverService.RegisterApplicationLayer(builder.Services);
 
 builder.Services.AddDbContext<DatabaseContext>(options =>
 {

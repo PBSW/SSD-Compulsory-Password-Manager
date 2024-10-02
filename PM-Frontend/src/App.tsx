@@ -1,48 +1,44 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import {BrowserRouter as Router, Route, Routes, Navigate, Outlet} from 'react-router-dom';
-import {Container, Row, Col, Button} from 'react-bootstrap';
+import {Container} from 'react-bootstrap';
 import Login from './Pages/Login/Login.tsx'; // Separate login component
-import Home from './Pages/Home/home.tsx'; // Home page component (to be protected)
+import Home from './Pages/Home/Home.tsx'; // Home page component (to be protected)
+import {AuthServiceProvider, useAuthService} from './Services/AuthService.tsx';
+
+// PrivateRoute Component
+const PrivateRoute: React.FC = () => {
+    const { token } = useAuthService(); // Use the AuthService to check auth state
+
+    //TODO: Verify Token here
+
+
+    return token ? <Outlet /> : <Navigate to="/login" replace />;
+};
 
 const App: React.FC = () => {
-    const [token, setToken] = useState<string | null>(null);
-
-    // Check if the user is already logged in on app load
-    useEffect(() => {
-        const storedToken = localStorage.getItem('jwtToken');
-        if (storedToken) {
-            setToken(storedToken);
-        }
-    }, []);
-
-    const handleLogout = () => {
-        localStorage.removeItem('jwtToken');
-        setToken(null);
-    };
-
     return (
+        <AuthServiceProvider>
             <Router>
-                <Container fluid className="mt-5 w-100 h-100">
+                <Container className="d-flex flex-column justify-content-center align-items-center vh-100">
                     <Routes>
                         {/* Public Route */}
-                        <Route path="/login" element={<Login setToken={setToken}/>}/>
+                        <Route path="/login" element={<Login />} />
 
                         {/* Protected Routes */}
-                        <Route path="/" element={<PrivateRoute token={token}/>}>
-                            <Route path="/" element={<Home handleLogout={handleLogout}/>}/>
+                        <Route path="/" element={<PrivateRoute />}>
+                            <Route path="/" element={<Home />} />
                         </Route>
 
-                        {/* Redirect any unknown routes to login */}
-                        <Route path="*" element={<Navigate to="/login" replace/>}/>
+                        {/* Redirect unknown routes to login */}
+                        <Route path="*" element={<Navigate to="/login" replace />} />
                     </Routes>
                 </Container>
             </Router>
+        </AuthServiceProvider>
     );
 };
 
-// PrivateRoute Component to protect authenticated routes
-const PrivateRoute: React.FC<{ token: string | null }> = ({token}) => {
-    return token ? <Outlet/> : <Navigate to="/login" replace/>;
-};
+
+
 
 export default App;

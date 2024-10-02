@@ -17,8 +17,4 @@
       <PackageReference Include="NSec.Cryptography" Version="24.9.0-preview.2" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Interfaces\Repistories\" />
-    </ItemGroup>
-
 </Project>

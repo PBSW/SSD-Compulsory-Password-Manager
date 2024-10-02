@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PM_Domain;
 
 namespace PM_Infrastructure;
 
@@ -10,4 +11,6 @@ public class DatabaseContext : DbContext
     {
         
     }
+    
+    public DbSet<ServiceCredentials> CredentialsTable { get; set; }
 }

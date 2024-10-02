@@ -32,4 +32,18 @@ public class AuthController : ControllerBase
             return BadRequest(e.Message);
         }
     }
+    
+    [HttpGet]
+    [Route("login")]
+    public async Task<IActionResult> Login(RegisterRequest request)
+    {
+        try
+        {
+            return Ok(await _authenticationService.Register(request));
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
 }

@@ -1,7 +1,7 @@
 using PM_Application.Interfaces.Repositories;
 using PM_Domain;
 
-namespace PM_Infrastructure;
+namespace PM_Infrastructure.Repositories;
 
 public class AuthenticationRepository : IAuthenticationRepository
 {
@@ -13,6 +13,11 @@ public class AuthenticationRepository : IAuthenticationRepository
     }
 
     public async Task<ApplicationUser> Create(ApplicationUser create)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<ApplicationUser> Read(ApplicationUser read)
     {
         throw new NotImplementedException();
     }

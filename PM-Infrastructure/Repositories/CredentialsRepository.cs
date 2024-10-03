@@ -11,7 +11,28 @@ public class CredentialsRepository : ICredentialsRepository
     {
         _dbContext = dbContext;
     }
-    public Task<ServiceCredentials> Create(ServiceCredentials credentials)
+
+    public Task<ServiceCredentials> Create(ServiceCredentials create)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ServiceCredentials> Read(ServiceCredentials read)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<List<ServiceCredentials>> ReadAllByUser(int user)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ServiceCredentials> Update(ServiceCredentials update)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> Delete(ServiceCredentials delete)
     {
         throw new NotImplementedException();
     }

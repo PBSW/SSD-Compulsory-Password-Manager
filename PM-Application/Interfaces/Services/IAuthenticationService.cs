@@ -6,6 +6,6 @@ namespace PM_Application.Interfaces.Services;
 
 public interface IAuthenticationService
 {
-    public Task<RegisterResponse> Register(RegisterCreate create);
+    public Task<bool> Register(RegisterCreate create);
     public Task<LoginResponse> Login(LoginRequest request);
 }

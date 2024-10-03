@@ -6,9 +6,9 @@ namespace PM_Application.Interfaces.Services;
 
 public interface ICredentialsService
 {
-    public Task<CredentialResponse> Create(ServiceCredentialsCreate create);
-    public Task<CredentialResponse> GetById(CredentialRequest request);
-    public Task<List<CredentialResponse>> GetAllByUser(int user);
-    public Task<CredentialResponse> Update(CredentialRequest update);
-    public Task<bool> Delete(CredentialRequest delete);
+    public Task<CredentialsResponse> Create(CredentialsCreate create);
+    public Task<CredentialsResponse> GetById(CredentialsRequest request);
+    public Task<List<CredentialsResponse>> GetAllByUser(int user);
+    public Task<CredentialsResponse> Update(CredentialsRequest update);
+    public Task<bool> Delete(CredentialsRequest delete);
 }

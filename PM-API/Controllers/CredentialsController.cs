@@ -19,7 +19,7 @@ public class CredentialsController : ControllerBase
     
     [HttpPost]
     [Route("create")]
-    public async Task<IActionResult> CreateCredentials([FromBody] ServiceCredentialsCreate create)
+    public async Task<IActionResult> CreateCredentials([FromBody] CredentialsCreate create)
     {
         try
         {
@@ -33,7 +33,7 @@ public class CredentialsController : ControllerBase
 
     [HttpGet]
     [Route("get")]
-    public async Task<IActionResult> GetCredentialsById([FromBody] CredentialRequest request)
+    public async Task<IActionResult> GetCredentialsById([FromBody] CredentialsRequest request)
     {
         try
         {
@@ -60,7 +60,7 @@ public class CredentialsController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<IActionResult> Update([FromBody] CredentialRequest request)
+    public async Task<IActionResult> Update([FromBody] CredentialsRequest request)
     {
         try
         {
@@ -73,7 +73,7 @@ public class CredentialsController : ControllerBase
     }
 
     [HttpDelete]
-    public async Task<IActionResult> Delete([FromBody] CredentialRequest delete)
+    public async Task<IActionResult> Delete([FromBody] CredentialsRequest delete)
     {
         try
         {

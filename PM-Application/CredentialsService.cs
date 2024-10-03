@@ -15,32 +15,32 @@ public class CredentialsService : ICredentialsService
         _repository = repository;
     }
     
-    public async Task<CredentialResponse> Create(CredentialRequest request)
+    public async Task<CredentialsResponse> Create(CredentialsRequest request)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<CredentialResponse> Create(ServiceCredentialsCreate create)
+    public async Task<CredentialsResponse> Create(CredentialsCreate create)
     {
         throw new NotImplementedException();
     }
 
-    public Task<CredentialResponse> GetById(CredentialRequest request)
+    public Task<CredentialsResponse> GetById(CredentialsRequest request)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<List<CredentialResponse>> GetAllByUser(int user)
+    public async Task<List<CredentialsResponse>> GetAllByUser(int user)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<CredentialResponse> Update(CredentialRequest update)
+    public async Task<CredentialsResponse> Update(CredentialsRequest update)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<bool> Delete(CredentialRequest delete)
+    public async Task<bool> Delete(CredentialsRequest delete)
     {
         throw new NotImplementedException();
     }

@@ -15,7 +15,7 @@ public class AuthenticationService : IAuthenticationService
         _repository = repository;
     }
     
-    public async Task<RegisterResponse> Register(RegisterCreate create)
+    public async Task<bool> Register(RegisterCreate create)
     {
         throw new NotImplementedException();
     }

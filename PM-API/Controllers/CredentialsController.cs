@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using PM_Application.DTOs.Create;
 using PM_Application.DTOs.Request;
 using PM_Application.DTOs.Response;
 using PM_Application.Interfaces.Services;
@@ -18,11 +19,11 @@ public class CredentialsController : ControllerBase
     
     [HttpPost]
     [Route("create")]
-    public async Task<IActionResult> CreateCredentials([FromBody] CredentialRequest request)
+    public async Task<IActionResult> CreateCredentials([FromBody] ServiceCredentialsCreate create)
     {
         try
         {
-            return Ok(await _credentialsService.Create(request));
+            return Ok(await _credentialsService.Create(create));
         }
         catch (Exception e)
         {

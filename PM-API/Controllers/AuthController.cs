@@ -1,10 +1,9 @@
 
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
-using PM_Application.DTOs.Response;
-using PM_Application.Interfaces;
+using PM_Application.DTOs.Create;
 using PM_Application.Interfaces.Services;
-using RegisterRequest = PM_Application.DTOs.Request.RegisterRequest;
+using LoginRequest = PM_Application.DTOs.Request.LoginRequest;
+
 
 namespace PM_API.Controllers;
 
@@ -21,11 +20,11 @@ public class AuthController : ControllerBase
     
     [HttpPost]
     [Route("register")]
-    public async Task<IActionResult> Register(RegisterRequest request)
+    public async Task<IActionResult> Register(RegisterCreate create)
     {
         try
         {
-            return Ok(await _authenticationService.Register(request));
+            return Ok(await _authenticationService.Register(create));
         }
         catch (Exception e)
         {
@@ -35,11 +34,11 @@ public class AuthController : ControllerBase
     
     [HttpGet]
     [Route("login")]
-    public async Task<IActionResult> Login(RegisterRequest request)
+    public async Task<IActionResult> Login(LoginRequest login)
     {
         try
         {
-            return Ok(await _authenticationService.Register(request));
+            return Ok(await _authenticationService.Login(login));
         }
         catch (Exception e)
         {

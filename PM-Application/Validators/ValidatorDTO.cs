@@ -9,6 +9,9 @@ public class ValidatorCredentialsCreate : AbstractValidator<CredentialsCreate>
     public ValidatorCredentialsCreate()
     {
         ClassLevelCascadeMode = CascadeMode.Stop;
+        
+        RuleFor(x => x.ServiceUsername).NotNull().WithMessage("Message");
+        RuleFor(x => x.ServiceUsername).NotEmpty().WithMessage("Message 2");
     }
 }
 

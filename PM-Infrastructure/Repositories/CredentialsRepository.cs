@@ -14,7 +14,7 @@ public class CredentialsRepository : ICredentialsRepository
 
     public Task<ServiceCredentials> Create(ServiceCredentials create)
     {
-        throw new NotImplementedException();
+        throw new NotImplementedException("No Database Implementation");
     }
 
     public Task<ServiceCredentials> Read(ServiceCredentials read)

@@ -29,4 +29,18 @@ public class CredentialsController : ControllerBase
             return BadRequest(e.Message);
         }
     }
+
+    [HttpGet]
+    [Route("get")]
+    public async Task<IActionResult> GetCredentials()
+    {
+        try
+        {
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
 }

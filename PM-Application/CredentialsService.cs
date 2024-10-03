@@ -1,6 +1,7 @@
 using PM_Application.DTOs.Create;
 using PM_Application.DTOs.Request;
 using PM_Application.DTOs.Response;
+using PM_Application.DTOs.Update;
 using PM_Application.Interfaces.Repositories;
 using PM_Application.Interfaces.Services;
 
@@ -35,7 +36,7 @@ public class CredentialsService : ICredentialsService
         throw new NotImplementedException();
     }
 
-    public async Task<CredentialsResponse> Update(CredentialsRequest update)
+    public async Task<CredentialsResponse> Update(CredentialsUpdate update)
     {
         throw new NotImplementedException();
     }

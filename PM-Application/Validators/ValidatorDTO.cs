@@ -1,11 +1,20 @@
 using FluentValidation;
 using PM_Application.DTOs.Create;
+using PM_Application.DTOs.Update;
 
 namespace PM_Application.Validators;
 
 public class ValidatorCredentialsCreate : AbstractValidator<CredentialsCreate>
 {
-    ValidatorCredentialsCreate()
+    public ValidatorCredentialsCreate()
+    {
+        ClassLevelCascadeMode = CascadeMode.Stop;
+    }
+}
+
+public class ValidatorCredentialsUpdate : AbstractValidator<CredentialsUpdate>
+{
+    public ValidatorCredentialsUpdate()
     {
         ClassLevelCascadeMode = CascadeMode.Stop;
     }
@@ -13,7 +22,7 @@ public class ValidatorCredentialsCreate : AbstractValidator<CredentialsCreate>
 
 public class ValidatorRegisterCreate : AbstractValidator<RegisterCreate>
 {
-    ValidatorRegisterCreate()
+    public ValidatorRegisterCreate()
     {
         ClassLevelCascadeMode = CascadeMode.Stop;
     }

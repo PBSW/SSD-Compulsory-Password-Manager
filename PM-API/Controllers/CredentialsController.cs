@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using PM_Application.DTOs.Create;
 using PM_Application.DTOs.Request;
 using PM_Application.DTOs.Response;
+using PM_Application.DTOs.Update;
 using PM_Application.Interfaces.Services;
 
 namespace PM_API.Controllers;
@@ -60,11 +61,11 @@ public class CredentialsController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<IActionResult> Update([FromBody] CredentialsRequest request)
+    public async Task<IActionResult> Update([FromBody] CredentialsUpdate update)
     {
         try
         {
-            return Ok(_credentialsService.Update(request));
+            return Ok(_credentialsService.Update(update));
         }
         catch (Exception e)
         {

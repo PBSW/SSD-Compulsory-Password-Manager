@@ -1,13 +1,10 @@
 using AutoMapper;
-using FluentValidation;
 using PM_Application.DTOs.Create;
 using PM_Application.DTOs.Request;
 using PM_Application.DTOs.Response;
 using PM_Application.DTOs.Update;
-using PM_Application.Interfaces;
 using PM_Application.Interfaces.Repositories;
 using PM_Application.Interfaces.Services;
-using PM_Application.Validators;
 using PM_Domain;
 using IValidatorFactory = PM_Application.Interfaces.IValidatorFactory;
 
@@ -29,31 +26,37 @@ public class CredentialsService : ICredentialsService
     public async Task<CredentialsResponse> Create(CredentialsCreate create)
     {
         await _validator.ValidateAsync(create);
-        
-        ServiceCredentials createdb = _mapper.Map<ServiceCredentials>(create);
-        
-        var createReturn = await _repository.Create(createdb);
-        
+        ServiceCredentials createDb = _mapper.Map<ServiceCredentials>(create);
+        var createReturn = await _repository.Create(createDb);
         return _mapper.Map<CredentialsResponse>(createReturn);
     }
 
-    public Task<CredentialsResponse> GetById(CredentialsRequest request)
+    public async Task<CredentialsResponse> GetById(CredentialsRequest request)
     {
-        throw new NotImplementedException();
+        await _validator.ValidateAsync(request);
+        ServiceCredentials updateDb = _mapper.Map<ServiceCredentials>(request);
+        var updateReturn = await _repository.Update(updateDb);
+        return _mapper.Map<CredentialsResponse>(updateReturn);
     }
 
     public async Task<List<CredentialsResponse>> GetAllByUser(int user)
     {
-        throw new NotImplementedException();
+        List<ServiceCredentials> listReturn = await _repository.ReadAllByUser(user);
+        return _mapper.Map<List<CredentialsResponse>>(listReturn);
     }
 
     public async Task<CredentialsResponse> Update(CredentialsUpdate update)
     {
-        throw new NotImplementedException();
+        await _validator.ValidateAsync(update);
+        ServiceCredentials updateDb = _mapper.Map<ServiceCredentials>(update);
+        var updateReturn = await _repository.Update(updateDb);
+        return _mapper.Map<CredentialsResponse>(updateReturn);
     }
 
     public async Task<bool> Delete(CredentialsRequest delete)
     {
-        throw new NotImplementedException();
+        await _validator.ValidateAsync(delete);
+        ServiceCredentials deleteDb = _mapper.Map<ServiceCredentials>(delete);
+        return await _repository.Delete(deleteDb);
     }
 }

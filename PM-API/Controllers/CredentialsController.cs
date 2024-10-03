@@ -33,11 +33,51 @@ public class CredentialsController : ControllerBase
 
     [HttpGet]
     [Route("get")]
-    public async Task<IActionResult> GetCredentials()
+    public async Task<IActionResult> GetCredentialsById([FromBody] CredentialRequest request)
     {
         try
         {
-            return Ok();
+            return Ok(_credentialsService.GetById(request));
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
+    [HttpGet]
+    [Route("getAllByUser")]
+    public async Task<IActionResult> GetAllByUser([FromBody] int user)
+    {
+        try
+        {
+            return Ok(_credentialsService.GetAllByUser(user));
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> Update([FromBody] CredentialRequest request)
+    {
+        try
+        {
+            return Ok(_credentialsService.Update(request));
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> Delete([FromBody] CredentialRequest delete)
+    {
+        try
+        {
+            return Ok(_credentialsService.Delete(delete));
         }
         catch (Exception e)
         {

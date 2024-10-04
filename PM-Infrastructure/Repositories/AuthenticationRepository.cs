@@ -10,6 +10,7 @@ public class AuthenticationRepository : IAuthenticationRepository
     public AuthenticationRepository(DatabaseContext dbContext)
     {
         _dbContext = dbContext;
+        _dbContext.Database.EnsureCreated();
     }
 
     public async Task<ApplicationUser> Create(ApplicationUser create)

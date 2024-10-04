@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using PM_Application.Interfaces.Repositories;
 using PM_Domain;
 
@@ -10,30 +11,59 @@ public class CredentialsRepository : ICredentialsRepository
     public CredentialsRepository(DatabaseContext dbContext)
     {
         _dbContext = dbContext;
+        _dbContext.Database.EnsureCreated();
     }
 
-    public Task<ServiceCredentials> Create(ServiceCredentials create)
+    public async Task<ServiceCredentials> Create(ServiceCredentials create)
     {
-        throw new NotImplementedException("No Database Implementation");
+        var returnEntry = await _dbContext.CredentialsTable.AddAsync(create);
+        await _dbContext.SaveChangesAsync();
+        return returnEntry.Entity;
     }
 
-    public Task<ServiceCredentials> Read(ServiceCredentials read)
+    public async Task<ServiceCredentials> Read(int read)
     {
-        throw new NotImplementedException();
+        //TODO: FIX THIS. METHOD DOESN'T WORK
+        var returnEntry = await _dbContext.CredentialsTable.Where(x => x.Id == read).FirstAsync();
+
+        if (returnEntry == null)
+            throw new Exception();
+        return returnEntry;
     }
 
-    public Task<List<ServiceCredentials>> ReadAllByUser(int user)
+    public async Task<List<ServiceCredentials>> ReadAllByUser(int user)
     {
-        throw new NotImplementedException();
+        return await _dbContext.CredentialsTable.Where(x => x.Id == user).ToListAsync();
     }
 
-    public Task<ServiceCredentials> Update(ServiceCredentials update)
+    public async Task<ServiceCredentials> Update(ServiceCredentials update)
     {
-        throw new NotImplementedException();
+        var existingCredentials = await _dbContext.CredentialsTable.FindAsync(update.Id);
+
+        if (existingCredentials != null)
+        {
+            existingCredentials.ServiceUsername = update.ServiceUsername;
+            existingCredentials.ServiceUsername = update.ServicePassword;
+            existingCredentials.IV = update.IV;
+
+            var result = await _dbContext.SaveChangesAsync();
+
+            if (result > 0)
+                return existingCredentials;
+            else
+                throw new Exception();
+        }
+        throw new Exception();
     }
 
-    public Task<bool> Delete(ServiceCredentials delete)
+    public async Task<bool> Delete(ServiceCredentials delete)
     {
-        throw new NotImplementedException();
+        _dbContext.CredentialsTable.Remove(delete);
+        int result = await _dbContext.SaveChangesAsync();
+
+        if (result > 0)
+            return true;
+        else
+            return false;
     }
 }

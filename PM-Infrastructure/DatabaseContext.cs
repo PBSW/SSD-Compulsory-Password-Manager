@@ -9,7 +9,31 @@ public class DatabaseContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Primary Keys
+        modelBuilder.Entity<ServiceCredentials>()
+            .HasKey(x => x.Id)
+            .HasName("PK_Id");
         
+        modelBuilder.Entity<ApplicationUser>()
+            .HasKey(x => x.Id)
+            .HasName("PK_Id");
+        
+        // Foreign Keys
+        
+        // Auto Increment
+        modelBuilder.Entity<ServiceCredentials>()
+            .Property(x => x.Id)
+            .ValueGeneratedOnAdd();
+
+        modelBuilder.Entity<ApplicationUser>()
+            .Property(x => x.Id)
+            .ValueGeneratedOnAdd();
+        
+        // One-To-Many Relation
+        //modelBuilder.Entity<ServiceCredentials>()
+        //    .HasOne<ApplicationUser>()
+        //    .WithMany()
+        //    .HasForeignKey(x => x.Id);
     }
     
     public DbSet<ApplicationUser> UsersTable { get; set; }

@@ -34,7 +34,7 @@ public class CredentialsController : ControllerBase
 
     [HttpGet]
     [Route("get")]
-    public async Task<IActionResult> GetCredentialsById([FromBody] CredentialsRequest request)
+    public async Task<IActionResult> GetCredentialsById([FromRoute] int request)
     {
         try
         {

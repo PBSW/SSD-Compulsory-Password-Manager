@@ -27,16 +27,16 @@ public class CredentialsService : ICredentialsService
     {
         await _validator.ValidateAsync(create);
         ServiceCredentials createDb = _mapper.Map<ServiceCredentials>(create);
+        //TODO: Fix this
+        createDb.IV = "Temp";
         var createReturn = await _repository.Create(createDb);
         return _mapper.Map<CredentialsResponse>(createReturn);
     }
 
-    public async Task<CredentialsResponse> GetById(CredentialsRequest request)
+    public async Task<CredentialsResponse> GetById(int request)
     {
-        await _validator.ValidateAsync(request);
-        ServiceCredentials updateDb = _mapper.Map<ServiceCredentials>(request);
-        var updateReturn = await _repository.Update(updateDb);
-        return _mapper.Map<CredentialsResponse>(updateReturn);
+        var getReturn = await _repository.Read(request);
+        return _mapper.Map<CredentialsResponse>(getReturn);
     }
 
     public async Task<List<CredentialsResponse>> GetAllByUser(int user)
@@ -49,6 +49,8 @@ public class CredentialsService : ICredentialsService
     {
         await _validator.ValidateAsync(update);
         ServiceCredentials updateDb = _mapper.Map<ServiceCredentials>(update);
+        //TODO: Fix this
+        updateDb.IV = "Temp";
         var updateReturn = await _repository.Update(updateDb);
         return _mapper.Map<CredentialsResponse>(updateReturn);
     }

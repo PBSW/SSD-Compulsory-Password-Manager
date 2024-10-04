@@ -1,10 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import {LoginRequest, RegisterCreateRequest} from "../Models/Requests.ts";
+import axiosInstance from "./HttpsService.ts";
 
 // Define the shape of your AuthService
 interface AuthServiceContextType {
     token: string | null;
     login: (username: string, password: string) => void;
     logout: () => void;
+    register: (email: string, username: string, password: string) => boolean;
 }
 
 // Define the props for AuthServiceProvider, including children
@@ -35,8 +38,22 @@ export const AuthServiceProvider: React.FC<AuthServiceProviderProps> = ({ childr
         }
     }, []);
 
-    const login = (username: string, password: string) => {
+    const login = async (username: string, password: string) => {
         // Make request
+        const dto: LoginRequest = {
+            username: username,
+            password: password,
+        }
+
+        const response = await axiosInstance.post('/auth/login', dto);
+/*
+        // Save the JWT token after successful login
+        const token = response.data.token;
+        if (token) {
+            localStorage.setItem('jwtToken', token);
+            setToken(token)
+        }
+*/
 
         let token: string | null = null;
         token = username + ':' + password;
@@ -49,8 +66,23 @@ export const AuthServiceProvider: React.FC<AuthServiceProviderProps> = ({ childr
         setToken(null);
     };
 
+    const register = async (email: string, username: string, password: string): boolean => {
+
+        const dto: RegisterCreateRequest = {
+            email: email,
+            username: username,
+            password: password
+        }
+
+        const response = await axiosInstance.post('/auth/register', dto)
+
+
+
+        return true;
+    }
+
     return (
-        <AuthServiceContext.Provider value={{ token, login, logout }}>
+        <AuthServiceContext.Provider value={{ token, login, logout, register }}>
             {children}
         </AuthServiceContext.Provider>
     );

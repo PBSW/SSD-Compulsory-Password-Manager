@@ -18,7 +18,6 @@ const Login: React.FC = () => {
         e.preventDefault();
 
         try {
-
             login(username, password); // Call the login function from AuthService
 
             //Navigate
@@ -60,6 +59,12 @@ const Login: React.FC = () => {
                 </Button>
             </Form>
 
+            <p className="mt-3">
+                Don't have an account?{' '}
+                <Button variant="link" onClick={() => navigate('/register')}>
+                    Register
+                </Button>
+            </p>
         </Container>
     );
 };

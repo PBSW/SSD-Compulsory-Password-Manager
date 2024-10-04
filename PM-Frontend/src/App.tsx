@@ -4,6 +4,7 @@ import {Container} from 'react-bootstrap';
 import Login from './Pages/Login/Login.tsx'; // Separate login component
 import Home from './Pages/Home/Home.tsx'; // Home page component (to be protected)
 import {AuthServiceProvider, useAuthService} from './Services/AuthService.tsx';
+import Register from "./Pages/Register/Register.tsx";
 
 // PrivateRoute Component
 const PrivateRoute: React.FC = () => {
@@ -23,6 +24,7 @@ const App: React.FC = () => {
                     <Routes>
                         {/* Public Route */}
                         <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
 
                         {/* Protected Routes */}
                         <Route path="/" element={<PrivateRoute />}>

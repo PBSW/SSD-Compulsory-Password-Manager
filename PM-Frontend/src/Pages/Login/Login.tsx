@@ -18,10 +18,15 @@ const Login: React.FC = () => {
         e.preventDefault();
 
         try {
-            login(username, password); // Call the login function from AuthService
+            const result = await login(username, password); // Call the login function from AuthService
 
-            //Navigate
-            navigate("/");
+            if (result) {
+                //Navigate
+                navigate("/");
+            }
+            else {
+                setError("Could not login.");
+            }
 
         } catch (err) {
             setError('Login failed. Please check your credentials.');

@@ -48,7 +48,7 @@ public class CredentialsController : ControllerBase
 
     [HttpGet]
     [Route("getAllByUser")]
-    public async Task<IActionResult> GetAllByUser([FromBody] int user)
+    public async Task<IActionResult> GetAllByUser([FromRoute] int user)
     {
         try
         {
@@ -74,11 +74,11 @@ public class CredentialsController : ControllerBase
     }
 
     [HttpDelete]
-    public async Task<IActionResult> Delete([FromBody] CredentialsRequest delete)
+    public async Task<IActionResult> Delete([FromRoute] int id)
     {
         try
         {
-            return Ok(_credentialsService.Delete(delete));
+            return Ok(_credentialsService.Delete(new CredentialsRequest { Id = id }));
         }
         catch (Exception e)
         {

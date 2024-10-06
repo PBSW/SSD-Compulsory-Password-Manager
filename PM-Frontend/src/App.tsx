@@ -9,11 +9,13 @@ import Register from "./Pages/Register/Register.tsx";
 // PrivateRoute Component
 const PrivateRoute: React.FC = () => {
     const { token } = useAuthService(); // Use the AuthService to check auth state
+    let isAuthenticated = false;
 
+    isAuthenticated = token === null
     //TODO: Verify Token here
 
 
-    return token ? <Outlet /> : <Navigate to="/login" replace />;
+    return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
 const App: React.FC = () => {

@@ -13,9 +13,17 @@ public class AuthenticationRepository : IAuthenticationRepository
         _dbContext.Database.EnsureCreated();
     }
 
-    public async Task<ApplicationUser> Create(ApplicationUser create)
+    public async Task<bool> Create(ApplicationUser create)
     {
-        throw new NotImplementedException();
+        await _dbContext.UsersTable.AddAsync(create);
+        var result = _dbContext.SaveChangesAsync();
+
+        if (result.Result > 0)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     public async Task<ApplicationUser> Read(ApplicationUser read)

@@ -1,0 +1,12 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  display: flex;
+  justify-content: center; /* Horizontally center */
+}
+
+.app-container {
+  width: 100%;
+  max-width: 600px; /* You can set your preferred width */
+  padding: 20px;
+}

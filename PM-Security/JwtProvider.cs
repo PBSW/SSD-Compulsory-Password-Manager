@@ -11,7 +11,7 @@ public class JwtProvider : IJwtProvider
 {
     private readonly string _secret;
     
-    public JwtProvider(IOptions<JWTOptions> options)
+    public JwtProvider(IOptions<JwtOptions> options)
     {
         _secret = options.Value.Secret;
     }

@@ -1,6 +1,6 @@
 namespace PM_Security;
 
-public class JWTOptions
+public class JwtOptions
 {
     public string Secret { get; set; }
 }

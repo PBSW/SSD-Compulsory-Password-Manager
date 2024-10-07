@@ -1,24 +1,35 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+  private token: string | null = null; // Store the token
 
-  constructor() { }
+  constructor(private router: Router) {}
 
+  // Call this method to set the token (e.g., after logging in)
+  login(token: string): void {
+    this.token = token;
+    // Optionally, store it in local storage
+    localStorage.setItem('token', token);
+  }
+
+  // Call this method to get the token
+  getToken(): string | null {
+    // Retrieve from local storage if needed
+    return this.token || localStorage.getItem('token');
+  }
 
   isAuthenticated(): boolean {
-    // Check local storage or session storage for authentication token
-    return !!localStorage.getItem('authToken');
+    return this.token !== null;
   }
 
-  login(token: string): void {
-    localStorage.setItem('authToken', token);
-  }
-
+  // Call this method to logout
   logout(): void {
-    localStorage.removeItem('authToken');
+    this.token = null;
+    localStorage.removeItem('token');
+    this.router.navigate(['/login']); // Redirect to login on logout
   }
-
 }

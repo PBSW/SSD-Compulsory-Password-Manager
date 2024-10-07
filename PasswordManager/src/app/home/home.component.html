@@ -1,1 +1,40 @@
-<p>home works!</p>
+<div class="container-fluid">
+
+  <div class="d-flex justify-content-around flex-row bg-dark w-100 p-4">
+
+    <h2 class="m-0 text-warning">
+      <strong>_vault</strong>
+    </h2>
+
+    <button class="btn btn-warning ms-auto" (click)="logout()">Logout</button>
+  </div>
+
+  <div class="container mt-5">
+    <h4>{{ credentials.length }} Credentials stored</h4>
+
+    <div ngbAccordion>
+      <!-- Loop over credentials array -->
+      <div *ngFor="let credential of credentials; let i = index" ngbAccordionItem>
+        <h2 ngbAccordionHeader>
+          <button ngbAccordionButton>
+            <!-- Accordion button label: show credential name or username -->
+            {{ credential.serviceName }} ({{ credential.serviceUsername }})
+          </button>
+        </h2>
+        <div ngbAccordionCollapse>
+          <div ngbAccordionBody>
+            <ng-template>
+              <p><strong>Username:</strong> {{ credential.serviceUsername }}</p>
+              <p><strong>Password:</strong> {{ credential.servicePassword }}</p>
+              <button class="btn btn-danger" (click)="deleteCredential(credential)">Delete</button>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+
+</div>

@@ -28,5 +28,16 @@ public class ValidatorRegisterCreate : AbstractValidator<RegisterCreate>
     public ValidatorRegisterCreate()
     {
         ClassLevelCascadeMode = CascadeMode.Stop;
+
+        RuleFor(x => x.Username).NotNull().NotEmpty().WithMessage("Username cannot be empty.");
+        RuleFor(x => x.Username).MinimumLength(3).WithMessage("Username must be at least 3 characters long.");
+        RuleFor(x => x.Username).MaximumLength(20).WithMessage("Username must be at most 20 characters long.");
+        RuleFor(x => x.Username).Matches("^[a-zA-Z0-9]*$").WithMessage("Username must only contain alphanumeric characters, and can not contain spaces.");
+
+        RuleFor(x => x.PasswordHash).NotNull().NotEmpty().WithMessage("Password cannot be empty.");
+        RuleFor(x => x.PasswordHash).MinimumLength(8).WithMessage("Password must be 8 characters long.");
+
+        RuleFor(x => x.Email).NotNull().NotEmpty().WithMessage("Email cannot be empty.");
+        RuleFor(x => x.Email).EmailAddress().WithMessage("Email must be a valid email.");
     }
 }

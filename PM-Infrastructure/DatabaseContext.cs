@@ -29,6 +29,15 @@ public class DatabaseContext : DbContext
             .Property(x => x.Id)
             .ValueGeneratedOnAdd();
         
+        // Unique
+        modelBuilder.Entity<ApplicationUser>()
+            .HasIndex(x => x.Username)
+            .IsUnique();
+
+        modelBuilder.Entity<ApplicationUser>()
+            .HasIndex(x => x.Email)
+            .IsUnique();
+
         // One-To-Many Relation
         //modelBuilder.Entity<ServiceCredentials>()
         //    .HasOne<ApplicationUser>()

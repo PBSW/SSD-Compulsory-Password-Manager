@@ -39,10 +39,10 @@ public class DatabaseContext : DbContext
             .IsUnique();
 
         // One-To-Many Relation
-        //modelBuilder.Entity<ServiceCredentials>()
-        //    .HasOne<ApplicationUser>()
-        //    .WithMany()
-        //    .HasForeignKey(x => x.Id);
+        modelBuilder.Entity<ServiceCredentials>()
+            .HasOne<ApplicationUser>()
+            .WithMany()
+            .HasForeignKey(x => x.Id);
     }
     
     public DbSet<ApplicationUser> UsersTable { get; set; }

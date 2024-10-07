@@ -32,6 +32,8 @@ public class AuthenticationService : IAuthenticationService
         
         var createDb = _mapper.Map<ApplicationUser>(create);
 
+        createDb.PasswordHash = _passwordHasher.Hash(createDb.PasswordHash, createDb.Username);
+        
         return await _repository.Create(createDb);
     }
 

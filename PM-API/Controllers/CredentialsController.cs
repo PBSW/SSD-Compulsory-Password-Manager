@@ -38,7 +38,7 @@ public class CredentialsController : ControllerBase
     {
         try
         {
-            return Ok(_credentialsService.GetById(request));
+            return Ok(await _credentialsService.GetById(request));
         }
         catch (Exception e)
         {
@@ -52,7 +52,7 @@ public class CredentialsController : ControllerBase
     {
         try
         {
-            return Ok(_credentialsService.GetAllByUser(user));
+            return Ok(await _credentialsService.GetAllByUser(user));
         }
         catch (Exception e)
         {
@@ -65,7 +65,7 @@ public class CredentialsController : ControllerBase
     {
         try
         {
-            return Ok(_credentialsService.Update(update));
+            return Ok(await _credentialsService.Update(update));
         }
         catch (Exception e)
         {
@@ -78,7 +78,7 @@ public class CredentialsController : ControllerBase
     {
         try
         {
-            return Ok(_credentialsService.Delete(new CredentialsRequest { Id = id }));
+            return Ok(await _credentialsService.Delete(new CredentialsRequest { Id = id }));
         }
         catch (Exception e)
         {

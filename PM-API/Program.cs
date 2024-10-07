@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using PM_Infrastructure;
 using PM_Security;
+using PM_Security.Hasher;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,9 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 //Add IOption<CryptographyOptions> to the DI container
 builder.Services.Configure<CryptographyOptions>(builder.Configuration.GetSection("Cryptography"));
+
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtBearer"));
+builder.Services.Configure<HashOptions>(builder.Configuration.GetSection("Hash"));
 
 
 PM_Application.DependencyResolver.Resolver.RegisterApplicationLayer(builder.Services);

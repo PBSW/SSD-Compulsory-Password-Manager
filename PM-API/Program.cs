@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using PM_Infrastructure;
+using PM_Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,8 +15,13 @@ builder.Services.AddControllers();
 builder.Services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+//Add IOption<CryptographyOptions> to the DI container
+builder.Services.Configure<CryptographyOptions>(builder.Configuration.GetSection("Cryptography"));
+
+
 PM_Application.DependencyResolver.Resolver.RegisterApplicationLayer(builder.Services);
 PM_Infrastructure.DependencyResolver.Resolver.RegisterRepositoryLayer(builder.Services);
+PM_Security.DependencyResolver.Resolver.RegisterRepositoryLayer(builder.Services);
 
 builder.Services.AddDbContext<DatabaseContext>(options =>
 {

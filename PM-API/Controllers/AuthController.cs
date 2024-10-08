@@ -1,4 +1,5 @@
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PM_Application.DTOs.Create;
 using PM_Application.Interfaces.Services;
@@ -18,6 +19,7 @@ public class AuthController : ControllerBase
         _authenticationService = authenticationService;
     }
     
+    [AllowAnonymous]
     [HttpPost]
     [Route("register")]
     public async Task<IActionResult> Register(RegisterCreate create)
@@ -32,6 +34,7 @@ public class AuthController : ControllerBase
         }
     }
     
+    [AllowAnonymous]
     [HttpPost]
     [Route("login")]
     public async Task<IActionResult> Login(LoginRequest login)

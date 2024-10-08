@@ -1,5 +1,9 @@
+using System.Text;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using PM_Infrastructure;
 using PM_Security;
 using PM_Security.Hasher;
@@ -8,10 +12,27 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+    {
+        // Add JWT Authentication to Swagger
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "Bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description =
+                "Enter 'Bearer' [space] and then your token in the text input below.\n\nExample: \"Bearer your_token_here\""
+        });
+    }
+);
+
 builder.Services.AddControllers();
 builder.Services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+
 
 // Register configuration options for secrets
 builder.Services.Configure<CryptographyOptions>(builder.Configuration.GetSection("Cryptography"));
@@ -23,6 +44,7 @@ PM_Application.DependencyResolver.Resolver.RegisterApplicationLayer(builder.Serv
 PM_Infrastructure.DependencyResolver.Resolver.RegisterRepositoryLayer(builder.Services);
 PM_Security.DependencyResolver.Resolver.RegisterSecurityLayer(builder.Services);
 
+// Database connection
 builder.Services.AddDbContext<DatabaseContext>(options =>
 {
     options.UseSqlite("Data Source=db.db");
@@ -30,7 +52,39 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
     options.EnableDetailedErrors();
 });
 
+// Authentication setup
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"], // replace with your actual issuer
+            ValidAudience = builder.Configuration["Jwt:Audience"], // replace with your actual audience
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+            RequireSignedTokens = true, // Ensure tokens are signed
+            RequireExpirationTime = true, // Ensure tokens have an expiration time
+            ValidateIssuerSigningKey = true // Validate the signing key without using 'kid'
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine($"Authentication failed: {context.Exception.Message}");
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                Console.WriteLine("Token successfully validated.");
+                return Task.CompletedTask;
+            }
+        };
+    });
+
 // Remember to put builder things before this, stupid.
+// Did I do it wrong in the first place? Aaaaa
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -40,8 +94,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.MapControllers();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseHttpsRedirection();
+
+app.MapControllers();
 
 app.Run();

@@ -11,7 +11,7 @@ public class PasswordHasher : IPasswordHasher
 
     public PasswordHasher(IOptions<HashOptions> options)
     {
-        _secret = options.Value.Key ?? throw new ArgumentNullException(nameof(options.Value.Key), "Secret cannot be null");
+        _secret = options.Value.Key ?? throw new ArgumentNullException(nameof(options.Value.Key), "Hasher secret cannot be null");
     }
     
     public string Hash(string password, string salt)

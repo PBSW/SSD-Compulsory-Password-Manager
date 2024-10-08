@@ -10,10 +10,14 @@ namespace PM_Security;
 public class JwtProvider : IJwtProvider
 {
     private readonly string _secret;
+    private readonly string _issuer;
+    private readonly string _audience;
     
     public JwtProvider(IOptions<JwtOptions> options)
     {
-        _secret = options.Value.Key ?? throw new ArgumentNullException(nameof(options.Value.Key), "Secret cannot be null");
+        _secret = options.Value.Key ?? throw new ArgumentNullException(nameof(options.Value.Key), "JWT secret cannot be null");
+        _issuer = options.Value.Issuer ?? throw new ArgumentNullException(nameof(options.Value.Issuer), "JWT issuer cannot be null");
+        _audience = options.Value.Audience ?? throw new ArgumentNullException(nameof(options.Value.Audience), "JWT audience cannot be null");
     }
     
     public string GenerateToken(int id, string username, IEnumerable<Claim> additionalClaims = null)
@@ -39,8 +43,8 @@ public class JwtProvider : IJwtProvider
 
         // Specify token parameters
         var token = new JwtSecurityToken(
-            issuer: "your-issuer",
-            audience: "your-audience",
+            issuer: _issuer,
+            audience: _audience,
             claims: claims,
             notBefore: DateTime.UtcNow,
             expires: DateTime.UtcNow.AddHours(8), // Token expiration time, 8 hours in this case

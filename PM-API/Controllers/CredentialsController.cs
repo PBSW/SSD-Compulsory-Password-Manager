@@ -1,7 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PM_Application.DTOs.Create;
 using PM_Application.DTOs.Request;
-using PM_Application.DTOs.Response;
 using PM_Application.DTOs.Update;
 using PM_Application.Interfaces.Services;
 
@@ -31,7 +31,7 @@ public class CredentialsController : ControllerBase
             return BadRequest(e.Message);
         }
     }
-
+    
     [HttpGet]
     [Route("get")]
     public async Task<IActionResult> GetCredentialsById([FromRoute] int request)
@@ -45,7 +45,7 @@ public class CredentialsController : ControllerBase
             return BadRequest(e.Message);
         }
     }
-
+    
     [HttpGet]
     [Route("getAllByUser")]
     public async Task<IActionResult> GetAllByUser([FromRoute] int user)
@@ -59,7 +59,7 @@ public class CredentialsController : ControllerBase
             return BadRequest(e.Message);
         }
     }
-
+    
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] CredentialsUpdate update)
     {
@@ -72,7 +72,7 @@ public class CredentialsController : ControllerBase
             return BadRequest(e.Message);
         }
     }
-
+    
     [HttpDelete]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {

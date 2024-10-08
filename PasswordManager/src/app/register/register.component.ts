@@ -4,6 +4,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {Router, RouterLink} from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import {NgIf} from '@angular/common';
+import {RegisterRequest} from '../../models/request';
+import {BackendAuthService} from '../services/backend-auth.service';
 
 @Component({
   selector: 'app-register',
@@ -17,7 +19,7 @@ export class RegisterComponent {
   registrationAttempted: boolean = false;
   registrationError: boolean = false;
 
-  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router, private backend: BackendAuthService) {
     this.registerForm = this.fb.group({
       username: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -37,12 +39,22 @@ export class RegisterComponent {
 
     if (this.registerForm.valid) {
       const { username, email, password } = this.registerForm.value;
-      // Simulate registration logic (You'd handle API logic here)
-      console.log('User Registered:', { username, email, password });
-      // You can also simulate registration failure for testing purposes:
-      // this.registrationError = true; // Uncomment to simulate error
-      this.authService.login('fake-jwt-token');  // Automatically login after registration
-      this.router.navigate(['/home']); // Redirect to home
+      const request: RegisterRequest =  { username: username, email: email, password: password };
+
+      // Call the backend service to register
+      this.backend.register(request).subscribe(
+        (success) => {
+          this.registrationError = !success;
+
+          if (success) {
+            this.router.navigate(['/login']); // Redirect to login
+          }
+        },
+        () => {
+          this.registrationError = true; // Show error message
+        }
+      );
+
     } else {
       this.registrationError = true; // Show error message
     }

@@ -83,6 +83,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+// Add CORS services
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularLocalhost",
+        corsBuilder => corsBuilder
+            .WithOrigins("http://localhost:4200") // Your Angular app URL
+            .AllowAnyMethod() // Allow any HTTP method (GET, POST, etc.)
+            .AllowAnyHeader() // Allow any header
+            .AllowCredentials()
+            .SetIsOriginAllowedToAllowWildcardSubdomains()
+        ); // Allow credentials if needed
+});
+
+
 // Remember to put builder things before this, stupid.
 // Did I do it wrong in the first place? Aaaaa
 var app = builder.Build();
@@ -93,6 +107,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("AllowAngularLocalhost");
 
 app.UseAuthentication();
 app.UseAuthorization();

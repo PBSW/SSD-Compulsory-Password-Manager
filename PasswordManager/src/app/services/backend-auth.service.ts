@@ -11,8 +11,8 @@ export class BackendAuthService {
 
   constructor(private http: HttpClient) { }
 
-  login(dto: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>("/auth/login", dto);
+  login(dto: LoginRequest): Observable<string> {
+    return this.http.post<string>("/auth/login", dto);
   }
 
   register(dto: RegisterRequest): Observable<boolean> {

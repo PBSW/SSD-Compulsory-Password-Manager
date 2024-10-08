@@ -10,3 +10,11 @@ export interface CredentialsResponse {
   serviceUsername: string;
   servicePassword: string;
 }
+
+
+export const emptyCredentialsResponse: CredentialsResponse = {
+  id: 0,
+  serviceName: '',
+  serviceUsername: '',
+  servicePassword: ''
+}

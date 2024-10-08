@@ -1,23 +1,42 @@
-import {Component, Input} from '@angular/core';
-import {NgbActiveModal, NgbModalModule} from '@ng-bootstrap/ng-bootstrap';
+import {Component, Input, OnInit} from '@angular/core';
+import {NgbActiveModal, NgbModal, NgbModalModule} from '@ng-bootstrap/ng-bootstrap';
+import {FormsModule} from '@angular/forms';
+import {NgIf} from '@angular/common';
+import {PasswordGeneratorComponent} from '../../password-generator/password-generator.component';
+import {ConfirmationModalComponent} from '../confirmation-modal/confirmation-modal.component';
+import {CredentialsResponse, emptyCredentialsResponse} from '../../../models/response';
+import {BackendCredentialsService} from '../../services/backend-credentials.service';
+
 
 @Component({
   selector: 'app-credential-view-edit-modal',
   standalone: true,
-  imports: [NgbModalModule],
+  imports: [NgbModalModule, FormsModule, NgIf, PasswordGeneratorComponent],
   templateUrl: './credential-view-edit-modal.component.html',
   styleUrl: './credential-view-edit-modal.component.scss'
 })
-export class CredentialViewEditModalComponent {
-  @Input() credential: any; // This will receive the credential data from the parent component
+export class CredentialViewEditModalComponent implements OnInit {
+  @Input() credential: CredentialsResponse = emptyCredentialsResponse; // This will receive the credential data from the parent component
+  editedCredential: CredentialsResponse = emptyCredentialsResponse; // object for editing
   isPasswordVisible = false;
+  isEditMode: boolean = false; // Initially in view mode
 
-  constructor(public activeModal: NgbActiveModal) {}
+  constructor(
+    public activeModal: NgbActiveModal,
+    private modalService: NgbModal,
+    private backend: BackendCredentialsService
+  ) {
 
-  // Close the modal
-  close(): void {
-    this.activeModal.close();
   }
+
+
+  ngOnInit(): void {
+    this.backend.getServiceCredentials(this.credential.id).subscribe((credential) => {
+      this.credential = credential;
+      this.editedCredential = { ...credential };
+    });
+  }
+
 
   // Toggle password visibility
   togglePasswordVisibility(): void {
@@ -41,4 +60,50 @@ export class CredentialViewEditModalComponent {
 
     }
   }
+
+  // Toggle between edit and view mode
+  toggleEditMode() {
+    this.isEditMode = !this.isEditMode;
+  }
+
+  // Update the credentials
+  update() {
+    // Logic to handle the update goes here (e.g., make API call)
+
+    this.credential = { ...this.editedCredential };
+    this.backend.updateServiceCredentials(this.credential).subscribe((value) => {
+      if (value) {
+        this.credential = value;
+      }
+    });
+
+    this.isEditMode = false;
+  }
+
+  onPasswordGenerated(newPassword: string) {
+    this.credential.servicePassword = newPassword; // Update password field with generated password
+  }
+
+  // Close the modal
+  close() {
+    this.activeModal.dismiss();
+  }
+
+  openDeleteConfirmation() {
+    // Open a confirmation modal for deleting the credential
+    const modalRef = this.modalService.open(ConfirmationModalComponent);
+
+    modalRef.componentInstance.title = 'Delete Credential';
+    modalRef.componentInstance.message = 'Are you sure you want to delete this credential?';
+    modalRef.componentInstance.confirmButtonText = 'Delete';
+
+    modalRef.closed.subscribe((result) => {
+      if (result) {
+        this.backend.deleteServiceCredentials(this.credential).subscribe(() => {
+          this.activeModal.close();
+        });
+      }
+    });
+  }
+
 }

@@ -4,12 +4,27 @@ using PM_Application.Interfaces;
 
 namespace PM_Security.Cryptography;
 
-public class CryptographyHelper(IOptions<CryptographyOptions> options) : ICryptographyHelper
+public class CryptographyHelper : ICryptographyHelper
 {
+    
+    private readonly byte[] _key;
+    
+    public CryptographyHelper(IOptions<CryptographyOptions> options)
+    {
+        _key = Convert.FromBase64String(options.Value.Key);
+        
+        if (_key.Length != 16 && _key.Length != 24 && _key.Length != 32)
+        {
+            throw new CryptographicException("Invalid key size for AES.");
+        }
+    }
+    
     public (string Cipher, string IV) Encrypt(string plainText)
     {
         using Aes aes = Aes.Create();
-        aes.Key = Convert.FromBase64String(options.Value.Key); // Use the same key for all encryptions
+        Console.WriteLine(_key);
+        
+        aes.Key = _key; // Use the same key for all encryptions
         aes.GenerateIV(); // Generate a new IV for this encryption
 
         ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
@@ -29,7 +44,7 @@ public class CryptographyHelper(IOptions<CryptographyOptions> options) : ICrypto
     public string DecryptWithIV(string cipher, string iv)
     {
         using Aes aes = Aes.Create();
-        aes.Key = Convert.FromBase64String(options.Value.Key); // Use the same key for all decryptions
+        aes.Key = _key; // Use the same key for all decryptions
         aes.IV = Convert.FromBase64String(iv); // Use the stored IV for decryption
         
         ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);

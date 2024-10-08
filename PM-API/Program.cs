@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -43,6 +44,14 @@ builder.Services.Configure<HashOptions>(builder.Configuration.GetSection("Hash")
 PM_Application.DependencyResolver.Resolver.RegisterApplicationLayer(builder.Services);
 PM_Infrastructure.DependencyResolver.Resolver.RegisterRepositoryLayer(builder.Services);
 PM_Security.DependencyResolver.Resolver.RegisterSecurityLayer(builder.Services);
+
+// Ensure db.db file exists
+var runtimeFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+var path = Path.Combine(runtimeFolder, "db.db");
+if (!File.Exists(path))
+{
+    File.Create(path).Close();
+}
 
 // Database connection
 builder.Services.AddDbContext<DatabaseContext>(options =>
@@ -106,6 +115,13 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+
+// Ensure db created
+using (var serviceScope = app.Services.CreateScope())
+{
+    var context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
+    context.Database.EnsureCreated();
 }
 
 app.UseCors("AllowAngularLocalhost");

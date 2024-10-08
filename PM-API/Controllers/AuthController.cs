@@ -22,7 +22,7 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     [HttpPost]
     [Route("register")]
-    public async Task<IActionResult> Register(RegisterCreate create)
+    public async Task<IActionResult> Register([FromBody] RegisterCreate create)
     {
         try
         {
@@ -41,7 +41,11 @@ public class AuthController : ControllerBase
     {
         try
         {
-            return Ok(await _authenticationService.Login(login));
+            var token = await _authenticationService.Login(login);
+            
+            var response = new { token };
+            
+            return Ok(response);
         }
         catch (Exception e)
         {

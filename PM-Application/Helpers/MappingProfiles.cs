@@ -12,9 +12,11 @@ public class MappingProfiles : Profile
     public MappingProfiles()
     {
         // Auth
-        CreateMap<RegisterCreate, ApplicationUser>();
+        CreateMap<RegisterCreate, ApplicationUser>()
+            .ForMember(x => x.PasswordHash, opt => opt.MapFrom(src => src.Password));
         CreateMap<ApplicationUser, LoginResponse>();
-        CreateMap<LoginRequest, ApplicationUser>();
+        CreateMap<LoginRequest, ApplicationUser>()
+            .ForMember(x => x.PasswordHash, opt => opt.MapFrom(src => src.Password));
         
         // Service Credentials
         CreateMap<CredentialsCreate, ServiceCredentials>();

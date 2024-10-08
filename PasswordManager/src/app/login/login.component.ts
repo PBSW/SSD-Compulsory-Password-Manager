@@ -6,6 +6,7 @@ import { AuthService } from '../services/auth.service';
 import {NgIf} from '@angular/common';
 import {BackendAuthService} from '../services/backend-auth.service';
 import {LoginRequest} from '../../models/request';
+import {catchError, of, tap} from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -35,17 +36,19 @@ export class LoginComponent {
       const request: LoginRequest =  { username, password };
 
       // Call the backend service to authenticate
-      this.backend.login(request).subscribe(
-        (token) => {
+      // Call the backend service to authenticate
+      this.backend.login(request).pipe(
+        tap((token) => {
 
-          this.authService.login(token); // Use AuthService for token management
-
+          this.authService.login(token.token); // Use AuthService for token management
           this.router.navigate(['/home']); // Redirect to home on success
-        },
-        () => {
+        }),
+        catchError((error) => {
           this.loginError = true; // Show error message
-        }
-      );
+          console.error('Login error:', error); // Optionally log the error
+          return of(null); // Return an observable to complete the stream
+        })
+      ).subscribe(); // Subscribe to execute the stream
 
 
     }

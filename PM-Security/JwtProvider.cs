@@ -28,7 +28,6 @@ public class JwtProvider : IJwtProvider
             // Add additional claims if needed
             new Claim(ClaimTypes.NameIdentifier, id.ToString()),
             new Claim(ClaimTypes.Name, username),
-            
         };
 
         // Add additional claims if provided

@@ -18,3 +18,8 @@ export const emptyCredentialsResponse: CredentialsResponse = {
   serviceUsername: '',
   servicePassword: ''
 }
+
+
+export interface TokenResponse {
+  token: string;
+}

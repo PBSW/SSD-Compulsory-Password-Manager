@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PM_Application.DTOs.Create;
@@ -33,7 +34,7 @@ public class CredentialsController : ControllerBase
     }
     
     [HttpGet]
-    [Route("get")]
+    [Route("get/{request}")]
     public async Task<IActionResult> GetCredentialsById([FromRoute] int request)
     {
         try
@@ -48,11 +49,21 @@ public class CredentialsController : ControllerBase
     
     [HttpGet]
     [Route("getAllByUser")]
-    public async Task<IActionResult> GetAllByUser([FromRoute] int user)
+    public async Task<IActionResult> GetAllByUser()
     {
         try
         {
-            return Ok(await _credentialsService.GetAllByUser(user));
+            var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null)
+            {
+                return Unauthorized("User is not authenticated.");
+            }
+
+            // Convert userId to an integer if necessary
+            int parsedUserId = int.Parse(userId);
+            
+            return Ok(await _credentialsService.GetAllByUser(parsedUserId));
         }
         catch (Exception e)
         {

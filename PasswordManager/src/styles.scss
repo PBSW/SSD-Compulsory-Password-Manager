@@ -1,6 +1,18 @@
 /* You can add global styles to this file, and also import other style files */
 
 /* Importing Bootstrap SCSS file. */
-@import 'bootstrap/scss/bootstrap';
+//@import 'bootstrap/scss/bootstrap';
+
+@import "bootswatch/dist/pulse/variables";
+@import "bootstrap/scss/bootstrap";
+@import "bootswatch/dist/pulse/bootswatch";
 
 
+html, body {
+  height: 100%;
+  background-color: #e6dde6;
+}
+
+.max-width-800px {
+  max-width: 800px;
+}

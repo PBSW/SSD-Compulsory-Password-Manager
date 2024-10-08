@@ -1,36 +1,47 @@
 <div class="container-fluid">
 
-  <div class="d-flex justify-content-around flex-row bg-dark w-100 p-4">
+  <div class="d-flex flex-column justify-content-center align-items-center mt-5">
+    <h1>
+      Your Credentials
+    </h1>
 
-    <h2 class="m-0 text-warning">
-      <strong>_vault</strong>
-    </h2>
-
-    <button class="btn btn-warning ms-auto" (click)="logout()">Logout</button>
   </div>
 
-  <div class="container mt-5">
-    <h4>{{ credentials.length }} Credentials stored</h4>
+  <div class="container card-body mt-5 ">
+    <div class="d-flex flex-row w-100 justify-content-between align-items-center mb-3">
 
-    <div ngbAccordion>
-      <!-- Loop over credentials array -->
-      <div *ngFor="let credential of credentials; let i = index" ngbAccordionItem>
-        <h2 ngbAccordionHeader>
-          <button ngbAccordionButton>
-            <!-- Accordion button label: show credential name or username -->
-            {{ credential.serviceName }} ({{ credential.serviceUsername }})
-          </button>
-        </h2>
-        <div ngbAccordionCollapse>
-          <div ngbAccordionBody>
-            <ng-template>
-              <p><strong>Username:</strong> {{ credential.serviceUsername }}</p>
-              <p><strong>Password:</strong> {{ credential.servicePassword }}</p>
-              <button class="btn btn-danger" (click)="deleteCredential(credential)">Delete</button>
-            </ng-template>
-          </div>
-        </div>
+      <h5 class="mb-0">{{ credentials.length }} Credentials stored</h5>
+
+      <div class="d-flex flex-row align-items-center">
+        <input class="form-control rounded me-1" type="text" placeholder="Search" [(ngModel)]="searchText">
+        <button [disabled]="searchText === ''" class="btn btn-secondary rounded me-5" (click)="searchText = ''">
+          <fa-icon [icon]="faTimes"></fa-icon>
+        </button>
+
+        <button class="btn btn-primary rounded" style="min-width: 150px" (click)="createNewServiceCredential()">
+          <fa-icon [icon]="faPlus"></fa-icon> Create New
+        </button>
       </div>
+
+    </div>
+
+    <div class="d-flex flex-column">
+
+      <div *ngFor="let credential of credentials | filter: searchText">
+        <button class="btn btn-secondary p-3 w-100 mb-2">
+
+          <div class="mb-0 w-100 d-flex flex-row justify-content-between align-items-center" (click)="openCredential(credential)">
+
+            <p class="mb-0">
+              <b>{{ credential.serviceName }}</b> ({{ credential.serviceUsername }})
+            </p>
+
+            <fa-icon class="text-primary" [icon]="faArrowRight"></fa-icon>
+          </div>
+
+        </button>
+      </div>
+
     </div>
 
 

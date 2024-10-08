@@ -1,18 +1,37 @@
 import {inject} from '@angular/core';
 import {AuthService} from './auth.service';
 import {CanActivateFn, Router} from '@angular/router';
+import {map} from 'rxjs';
 
-export const AuthGuard: CanActivateFn = () => {
+export const VaultAuthGuard: CanActivateFn = () => {
   // Inject services
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // Check if the user is authenticated
-  if (authService.isAuthenticated()) {
-    return true;
-  } else {
-    // Redirect to login if not authenticated
-    router.navigate(['/login']);
-    return false;
-  }
+  return authService.isAuthenticated().pipe(
+    map(isAuthenticated => {
+      if (!isAuthenticated) {
+        router.navigate(['/login']);
+        return false;
+      }
+      return true;
+    })
+  );
+}
+
+// If the user is authenticated, don't send them to the login page
+export const LoginRegisterGuard: CanActivateFn = () => {
+  // Inject services
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  return authService.isAuthenticated().pipe(
+    map(isAuthenticated => {
+      if (isAuthenticated) {
+        router.navigate(['/home']);
+        return false;
+      }
+      return true;
+    })
+  );
 }

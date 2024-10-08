@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import {BehaviorSubject, Observable} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -7,13 +8,24 @@ import { Router } from '@angular/router';
 export class AuthService {
   private token: string | null = null; // Store the token
 
-  constructor(private router: Router) {}
+  private authState =  new BehaviorSubject<boolean>(false);
+
+
+  constructor(private router: Router) {
+    const token = this.getToken();
+
+    if (token) {
+      this.token = token;
+      this.authState.next(true);
+    }
+  }
 
   // Call this method to set the token (e.g., after logging in)
   login(token: string): void {
     this.token = token;
     // Optionally, store it in local storage
     localStorage.setItem('token', token);
+    this.authState.next(true);
   }
 
   // Call this method to get the token
@@ -22,14 +34,15 @@ export class AuthService {
     return this.token || localStorage.getItem('token');
   }
 
-  isAuthenticated(): boolean {
-    return this.token !== null;
+  isAuthenticated(): Observable<boolean> {
+    return this.authState.asObservable();
   }
 
   // Call this method to logout
   logout(): void {
     this.token = null;
     localStorage.removeItem('token');
+    this.authState.next(false);
     this.router.navigate(['/login']); // Redirect to login on logout
   }
 }

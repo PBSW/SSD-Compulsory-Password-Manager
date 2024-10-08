@@ -7,6 +7,14 @@ html, body {
 
 .app-container {
   width: 100%;
-  max-width: 600px; /* You can set your preferred width */
-  padding: 20px;
+  align-self: center;
+}
+
+
+
+.center-app {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }

@@ -1,1 +1,51 @@
-<p>home works!</p>
+<div class="container-fluid">
+
+  <div class="d-flex flex-column justify-content-center align-items-center mt-5">
+    <h1>
+      Your Credentials
+    </h1>
+
+  </div>
+
+  <div class="container card-body mt-5 ">
+    <div class="d-flex flex-row w-100 justify-content-between align-items-center mb-3">
+
+      <h5 class="mb-0">{{ credentials.length }} Credentials stored</h5>
+
+      <div class="d-flex flex-row align-items-center">
+        <input class="form-control rounded me-1" type="text" placeholder="Search" [(ngModel)]="searchText">
+        <button [disabled]="searchText === ''" class="btn btn-secondary rounded me-5" (click)="searchText = ''">
+          <fa-icon [icon]="faTimes"></fa-icon>
+        </button>
+
+        <button class="btn btn-primary rounded" style="min-width: 150px" (click)="createNewServiceCredential()">
+          <fa-icon [icon]="faPlus"></fa-icon> Create New
+        </button>
+      </div>
+
+    </div>
+
+    <div class="d-flex flex-column">
+
+      <div *ngFor="let credential of credentials | filter: searchText">
+        <button class="btn btn-secondary p-3 w-100 mb-2">
+
+          <div class="mb-0 w-100 d-flex flex-row justify-content-between align-items-center" (click)="openCredential(credential)">
+
+            <p class="mb-0">
+              <b>{{ credential.serviceName }}</b> ({{ credential.serviceUsername }})
+            </p>
+
+            <fa-icon class="text-primary" [icon]="faArrowRight"></fa-icon>
+          </div>
+
+        </button>
+      </div>
+
+    </div>
+
+
+  </div>
+
+
+</div>

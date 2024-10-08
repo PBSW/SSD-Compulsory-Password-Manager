@@ -20,16 +20,8 @@ export interface LoginRequest {
   password: string;
 }
 
-
-export interface LoginResponse {
-  id: number;
-  email: string;
+export interface RegisterRequest {
   username: string;
-}
-
-export interface CredentialsResponse {
-  id: number;
-  serviceName: string;
-  serviceUsername: string;
-  servicePassword: string;
+  password: string;
+  email: string;
 }

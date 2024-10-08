@@ -13,7 +13,7 @@ public class JwtProvider : IJwtProvider
     
     public JwtProvider(IOptions<JwtOptions> options)
     {
-        _secret = options.Value.Secret;
+        _secret = options.Value.Key ?? throw new ArgumentNullException(nameof(options.Value.Key), "Secret cannot be null");
     }
     
     public string GenerateToken(int id, string username, IEnumerable<Claim> additionalClaims = null)
@@ -33,7 +33,7 @@ public class JwtProvider : IJwtProvider
             claims.AddRange(additionalClaims);
         }
 
-        // Specify signing credentials (replace "secret" with your actual secret key)
+        // Specify signing credentials
         var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret));
         var signingCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
 

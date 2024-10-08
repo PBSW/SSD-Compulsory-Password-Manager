@@ -7,25 +7,21 @@ using PM_Security.Hasher;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 builder.Services.AddControllers();
-
 builder.Services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-//Add IOption<CryptographyOptions> to the DI container
+// Register configuration options for secrets
 builder.Services.Configure<CryptographyOptions>(builder.Configuration.GetSection("Cryptography"));
-
-builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtBearer"));
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 builder.Services.Configure<HashOptions>(builder.Configuration.GetSection("Hash"));
 
-
+// Registers dependency layers
 PM_Application.DependencyResolver.Resolver.RegisterApplicationLayer(builder.Services);
 PM_Infrastructure.DependencyResolver.Resolver.RegisterRepositoryLayer(builder.Services);
-PM_Security.DependencyResolver.Resolver.RegisterRepositoryLayer(builder.Services);
+PM_Security.DependencyResolver.Resolver.RegisterSecurityLayer(builder.Services);
 
 builder.Services.AddDbContext<DatabaseContext>(options =>
 {

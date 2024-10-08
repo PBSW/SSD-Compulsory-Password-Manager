@@ -47,9 +47,9 @@ public class AuthenticationService : IAuthenticationService
 
         var hashedPassword = _passwordHasher.Hash(request.Password, request.Username);
 
-        if (request.Password != hashedPassword)
+        if (responseDb.PasswordHash != hashedPassword)
         {
-            throw new AuthenticationException();
+            throw new AuthenticationException("Incorrect password");
         }
 
         return _jwtProvider.GenerateToken(responseDb.Id, responseDb.Username);

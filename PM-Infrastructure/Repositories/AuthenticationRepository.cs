@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using PM_Application.Interfaces.Repositories;
 using PM_Domain;
 
@@ -28,6 +29,12 @@ public class AuthenticationRepository : IAuthenticationRepository
 
     public async Task<ApplicationUser> Read(ApplicationUser read)
     {
-        throw new NotImplementedException();
+        var user = await _dbContext.UsersTable.Where(x => x.Username == read.Username).FirstAsync();
+
+        if (user == null)
+        {
+            throw new ArgumentException("User not found");
+        }
+        return user;
     }
 }

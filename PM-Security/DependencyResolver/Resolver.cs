@@ -8,7 +8,7 @@ namespace PM_Security.DependencyResolver;
 
 public class Resolver
 {
-    public static void RegisterRepositoryLayer(IServiceCollection serviceCollection)
+    public static void RegisterSecurityLayer(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<ICryptographyHelper, CryptographyHelper>();
         serviceCollection.AddScoped<IJwtProvider, JwtProvider>();

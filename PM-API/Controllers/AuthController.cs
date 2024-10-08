@@ -32,7 +32,7 @@ public class AuthController : ControllerBase
         }
     }
     
-    [HttpGet]
+    [HttpPost]
     [Route("login")]
     public async Task<IActionResult> Login(LoginRequest login)
     {

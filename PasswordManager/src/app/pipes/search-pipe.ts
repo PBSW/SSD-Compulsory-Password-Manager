@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import {CredentialsResponse} from '../../models/response';
+import {CredentialsResponse, PartialCredentialsResponse} from '../../models/response';
 
 @Pipe({
   standalone: true,
@@ -7,7 +7,7 @@ import {CredentialsResponse} from '../../models/response';
 })
 export class SearchPipe implements PipeTransform {
 
-  transform(items: CredentialsResponse[], searchText: string): any[] {
+  transform(items: PartialCredentialsResponse[], searchText: string): any[] {
     if (!items) return [];
     if (!searchText) return items;
     if (searchText == "") return items;

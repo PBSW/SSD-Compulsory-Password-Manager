@@ -33,7 +33,7 @@ export class HomeComponent {
   }
 
 
-  openCredential(credential: CredentialsResponse) {
+  openCredential(credential: PartialCredentialsResponse) {
     const modalRef = this.ngbModal.open(CredentialViewEditModalComponent);
     modalRef.componentInstance.credential = credential;
 

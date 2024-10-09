@@ -148,12 +148,16 @@ using (var serviceScope = app.Services.CreateScope())
     context.Database.EnsureCreated();
 }
 
-app.UseCors("AllowAngularLocalhost");
+// Middleware order
+app.UseHttpsRedirection(); // Ensures requests are redirected to HTTPS
 
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseCors("AllowAngularLocalhost"); // Apply CORS policy before authentication
 
-app.UseHttpsRedirection();
+app.UseAuthentication(); // Authenticate the user
+app.UseAuthorization(); // Authorize the user based on the authentication
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.MapControllers();
 

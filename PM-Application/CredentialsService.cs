@@ -31,7 +31,7 @@ public class CredentialsService : ICredentialsService
         _cryptography = cryptographyHelper;
     }
     
-    public async Task<CredentialsResponse> Create(CredentialsCreate create, int userId)
+    public async Task<PartialCredentialResponse> Create(CredentialsCreate create, int userId)
     {
         await _validator.ValidateAsync(create);
         ServiceCredentials createDb = _mapper.Map<ServiceCredentials>(create);
@@ -47,7 +47,7 @@ public class CredentialsService : ICredentialsService
         createDb.UserId = userId;
         
         var createReturn = await _repository.Create(createDb);
-        return _mapper.Map<CredentialsResponse>(createReturn);
+        return _mapper.Map<PartialCredentialResponse>(createReturn);
     }
 
     public async Task<CredentialsResponse> GetById(int request)

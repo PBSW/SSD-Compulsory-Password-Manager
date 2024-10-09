@@ -58,3 +58,14 @@ public class ValidatorLoginRequest : AbstractValidator<LoginRequest>
         RuleFor(x => x.Password).MinimumLength(8).WithMessage("Password must be 8 characters long.");
     }
 }
+
+public class ValidatorCredentialsRequest : AbstractValidator<CredentialsRequest>
+{
+    public ValidatorCredentialsRequest()
+    {
+        ClassLevelCascadeMode = CascadeMode.Stop;
+
+        RuleFor(x => x.Id).NotNull().WithMessage("Id can not be empty or null");
+        RuleFor(x => x.Id).GreaterThan(0).WithMessage("Id can not be negative");
+    }
+}

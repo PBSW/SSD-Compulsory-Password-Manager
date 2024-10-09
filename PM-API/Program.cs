@@ -121,12 +121,11 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularLocalhost",
         corsBuilder => corsBuilder
-            .WithOrigins("http://localhost:4200") // Your Angular app URL
-            .AllowAnyMethod() // Allow any HTTP method (GET, POST, etc.)
-            .AllowAnyHeader() // Allow any header
-            .AllowCredentials()
-            .SetIsOriginAllowedToAllowWildcardSubdomains()
-        ); // Allow credentials if needed
+            .WithOrigins("http://localhost:4200") // Ensure this matches the Angular app URL exactly
+            .AllowAnyMethod() // Allow all HTTP methods
+            .AllowAnyHeader() // Allow all headers
+            .AllowCredentials() // Allow sending credentials (cookies or authorization headers)
+    );
 });
 
 

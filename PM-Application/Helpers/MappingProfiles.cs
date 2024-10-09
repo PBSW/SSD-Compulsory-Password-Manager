@@ -23,5 +23,6 @@ public class MappingProfiles : Profile
         CreateMap<ServiceCredentials, CredentialsResponse>();
         CreateMap<CredentialsUpdate, ServiceCredentials>();
         CreateMap<ServiceCredentials, PartialCredentialResponse>();
+        CreateMap<CredentialsRequest, ServiceCredentials>();
     }
 }

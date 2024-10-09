@@ -58,12 +58,17 @@ public class CredentialsRepository : ICredentialsRepository
 
     public async Task<bool> Delete(ServiceCredentials delete)
     {
-        _dbContext.CredentialsTable.Remove(delete);
+        var entityToDelete = await _dbContext.CredentialsTable.FindAsync(delete.Id);
+        
+        if (entityToDelete == null)
+        {
+            return false;
+        }
+        
+        _dbContext.CredentialsTable.Remove(entityToDelete);
+
         int result = await _dbContext.SaveChangesAsync();
 
-        if (result > 0)
-            return true;
-        else
-            return false;
+        return result > 0;
     }
 }

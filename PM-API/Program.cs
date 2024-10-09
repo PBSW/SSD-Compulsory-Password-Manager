@@ -103,7 +103,7 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
-builder.Services.AddSingleton<IAuthorizationHandler, OwnDataHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, OwnDataHandler>();
 builder.Services.AddHttpContextAccessor(); // If not already added
 
 // Add CORS services

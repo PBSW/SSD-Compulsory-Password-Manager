@@ -33,7 +33,7 @@ public class CredentialsRepository : ICredentialsRepository
 
     public async Task<List<ServiceCredentials>> ReadAllByUser(int user)
     {
-        return await _dbContext.CredentialsTable.Where(x => x.Id == user).ToListAsync();
+        return await _dbContext.CredentialsTable.Where(x => x.UserId == user).ToListAsync();
     }
 
     public async Task<ServiceCredentials> Update(ServiceCredentials update)

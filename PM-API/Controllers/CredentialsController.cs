@@ -59,7 +59,7 @@ public class CredentialsController : ControllerBase
         }
     }
     
-    //[HttpGet]
+    [HttpGet]
     [Route("getAllByUser")]
     public async Task<IActionResult> GetAllByUser()
     {

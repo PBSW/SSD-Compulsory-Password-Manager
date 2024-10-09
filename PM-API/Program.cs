@@ -107,7 +107,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // Authorization setup
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("OwnData", policy =>
+    options.AddPolicy("OwnDataPolicy", policy =>
     {
         policy.Requirements.Add(new OwnDataRequirement());
     });

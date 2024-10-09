@@ -100,11 +100,12 @@ public class CredentialsController : ControllerBase
     
     [Authorize(Policy = "OwnDataPolicy")]
     [HttpDelete]
-    public async Task<IActionResult> Delete([FromRoute] int id)
+    [Route("delete/{request}")]
+    public async Task<IActionResult> Delete([FromRoute] int request)
     {
         try
         {
-            return Ok(await _credentialsService.Delete(new CredentialsRequest { Id = id }));
+            return Ok(await _credentialsService.Delete(new CredentialsRequest { Id = request }));
         }
         catch (Exception e)
         {

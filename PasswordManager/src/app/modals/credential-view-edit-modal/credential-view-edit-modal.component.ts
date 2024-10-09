@@ -4,7 +4,12 @@ import {FormsModule} from '@angular/forms';
 import {NgIf} from '@angular/common';
 import {PasswordGeneratorComponent} from '../../password-generator/password-generator.component';
 import {ConfirmationModalComponent} from '../confirmation-modal/confirmation-modal.component';
-import {CredentialsResponse, emptyCredentialsResponse} from '../../../models/response';
+import {
+  CredentialsResponse,
+  emptyCredentialsResponse,
+  emptyPartialCredentialsResponse,
+  PartialCredentialsResponse
+} from '../../../models/response';
 import {BackendCredentialsService} from '../../services/backend-credentials.service';
 
 
@@ -16,7 +21,8 @@ import {BackendCredentialsService} from '../../services/backend-credentials.serv
   styleUrl: './credential-view-edit-modal.component.scss'
 })
 export class CredentialViewEditModalComponent implements OnInit {
-  @Input() credential: CredentialsResponse = emptyCredentialsResponse; // This will receive the credential data from the parent component
+  @Input() inputCredential: PartialCredentialsResponse = emptyPartialCredentialsResponse; // This will receive the credential data from the parent component
+  credential: CredentialsResponse = emptyCredentialsResponse; // object for viewing
   editedCredential: CredentialsResponse = emptyCredentialsResponse; // object for editing
   isPasswordVisible = false;
   isEditMode: boolean = false; // Initially in view mode
@@ -31,7 +37,7 @@ export class CredentialViewEditModalComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.backend.getServiceCredentials(this.credential.id).subscribe((credential) => {
+    this.backend.getServiceCredentials(this.inputCredential.id).subscribe((credential) => {
       this.credential = credential;
       this.editedCredential = { ...credential };
     });

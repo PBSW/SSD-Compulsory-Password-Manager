@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {CredentialsResponse} from '../../models/response';
+import {CredentialsResponse, PartialCredentialsResponse} from '../../models/response';
 import {BackendCredentialsService} from '../services/backend-credentials.service';
 import {NgForOf, NgIf} from '@angular/common';
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
@@ -24,7 +24,7 @@ export class HomeComponent {
 
   searchText = '';
 
-  credentials: CredentialsResponse[] = [];
+  credentials: PartialCredentialsResponse[] = [];
 
   constructor(private backendCredentialsService: BackendCredentialsService, private ngbModal: NgbModal) {
     this.backendCredentialsService.getAllServiceCredential().subscribe((credentials) => {

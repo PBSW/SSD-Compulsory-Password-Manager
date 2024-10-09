@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpResponse} from '@angular/common/http';
-import {CredentialsResponse} from '../../models/response';
+import {CredentialsResponse, PartialCredentialsResponse} from '../../models/response';
 
 import {map, Observable, of} from 'rxjs';
 
@@ -14,15 +14,8 @@ export class BackendCredentialsService {
 
   constructor(private http: HttpClient, private auth: AuthService) { }
 
-  getAllServiceCredential(): Observable<CredentialsResponse[]> {
-
-    const id = this.auth.decodeId();
-
-    if (id === undefined) {
-      return of([]);
-    }
-
-    return this.http.get<CredentialsResponse[]>('/credentials/getAllByUser');
+  getAllServiceCredential(): Observable<PartialCredentialsResponse[]> {
+    return this.http.get<PartialCredentialsResponse[]>('/credentials/getAllByUser');
   }
 
   getServiceCredentials(id: number): Observable<CredentialsResponse> {

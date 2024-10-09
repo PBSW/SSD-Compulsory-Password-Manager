@@ -2,9 +2,11 @@ using System.Reflection;
 using System.Text;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using PM_API.Policies;
 using PM_Infrastructure;
 using PM_Security;
 using PM_Security.Hasher;
@@ -91,6 +93,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             }
         };
     });
+
+// Authorization setup
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("OwnData", policy =>
+    {
+        policy.Requirements.Add(new OwnDataRequirement());
+    });
+});
+
+builder.Services.AddSingleton<IAuthorizationHandler, OwnDataHandler>();
+builder.Services.AddHttpContextAccessor(); // If not already added
 
 // Add CORS services
 builder.Services.AddCors(options =>

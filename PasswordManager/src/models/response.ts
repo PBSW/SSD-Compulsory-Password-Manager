@@ -11,12 +11,25 @@ export interface CredentialsResponse {
   servicePassword: string;
 }
 
+export interface PartialCredentialsResponse {
+  id: number;
+  serviceName: string;
+  serviceUsername: string;
+}
+
+
 
 export const emptyCredentialsResponse: CredentialsResponse = {
   id: 0,
   serviceName: '',
   serviceUsername: '',
   servicePassword: ''
+}
+
+export const emptyPartialCredentialsResponse: PartialCredentialsResponse = {
+  id: 0,
+  serviceName: '',
+  serviceUsername: ''
 }
 
 

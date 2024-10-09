@@ -7,7 +7,7 @@ While the project was only made by two people, considerations for the 3- and 4-p
 
 ## How to run the application
 
-The project contains two "application", the frontend and backend. Both of which must be running simultaneously.
+The project contains two "applications", the frontend and backend. Both of which must be running simultaneously.
 
 ### Backend
 
@@ -35,11 +35,9 @@ screenshot.png
 
 ## Security Model discussion
 
-a
-
 ### What are we protecting against?
 
-Bad actors/malicous users, data breaches.
+Bad actors/malicous users, data breaches. Who are our threat actors?
 Auth handling.
 
 ### Security Model

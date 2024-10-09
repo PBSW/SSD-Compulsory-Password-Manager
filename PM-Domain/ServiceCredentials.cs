@@ -7,4 +7,5 @@ public class ServiceCredentials
     public string ServiceUsername { get; set; }
     public string ServicePassword { get; set; }
     public string IV { get; set; }
+    public int UserId { get; set; }
 }

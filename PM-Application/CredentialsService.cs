@@ -31,7 +31,7 @@ public class CredentialsService : ICredentialsService
         _cryptography = cryptographyHelper;
     }
     
-    public async Task<CredentialsResponse> Create(CredentialsCreate create)
+    public async Task<CredentialsResponse> Create(CredentialsCreate create, int userId)
     {
         await _validator.ValidateAsync(create);
         ServiceCredentials createDb = _mapper.Map<ServiceCredentials>(create);
@@ -42,7 +42,10 @@ public class CredentialsService : ICredentialsService
         // Apply the encryption to the password
         createDb.ServicePassword = cipher;
         createDb.IV = iv;
-  
+        
+        // Set User foreign key
+        createDb.UserId = userId;
+        
         var createReturn = await _repository.Create(createDb);
         return _mapper.Map<CredentialsResponse>(createReturn);
     }

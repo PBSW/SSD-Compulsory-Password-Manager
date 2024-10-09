@@ -42,7 +42,8 @@ public class DatabaseContext : DbContext
         modelBuilder.Entity<ServiceCredentials>()
             .HasOne<ApplicationUser>()
             .WithMany()
-            .HasForeignKey(x => x.Id);
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
     
     public DbSet<ApplicationUser> UsersTable { get; set; }

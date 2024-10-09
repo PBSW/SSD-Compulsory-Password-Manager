@@ -19,13 +19,24 @@ public class CredentialsController : ControllerBase
         _credentialsService = credentialsService;
     }
     
+    //[Authorize]
     [HttpPost]
     [Route("create")]
     public async Task<IActionResult> CreateCredentials([FromBody] CredentialsCreate create)
     {
         try
         {
-            return Ok(await _credentialsService.Create(create));
+            var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null)
+            {
+                return Unauthorized("User is not authenticated.");
+            }
+            
+            // Convert userId to an integer if necessary
+            var parsedUserId = int.Parse(userId);
+            
+            return Ok(await _credentialsService.Create(create, parsedUserId));
         }
         catch (Exception e)
         {
@@ -33,7 +44,7 @@ public class CredentialsController : ControllerBase
         }
     }
     
-    [Authorize(Policy = "OwnDataPolicy")]
+    //[Authorize(Policy = "OwnDataPolicy")]
     [HttpGet]
     [Route("get/{request}")]
     public async Task<IActionResult> GetCredentialsById([FromRoute] int request)
@@ -48,7 +59,7 @@ public class CredentialsController : ControllerBase
         }
     }
     
-    [HttpGet]
+    //[HttpGet]
     [Route("getAllByUser")]
     public async Task<IActionResult> GetAllByUser()
     {
@@ -72,7 +83,7 @@ public class CredentialsController : ControllerBase
         }
     }
     
-    [Authorize(Policy = "OwnDataPolicy")]
+    //[Authorize(Policy = "OwnDataPolicy")]
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] CredentialsUpdate update)
     {
@@ -86,7 +97,7 @@ public class CredentialsController : ControllerBase
         }
     }
     
-    [Authorize(Policy = "OwnDataPolicy")]
+    //[Authorize(Policy = "OwnDataPolicy")]
     [HttpDelete]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {

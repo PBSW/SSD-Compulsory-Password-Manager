@@ -19,7 +19,7 @@ public class CredentialsController : ControllerBase
         _credentialsService = credentialsService;
     }
     
-    //[Authorize]
+    [Authorize]
     [HttpPost]
     [Route("create")]
     public async Task<IActionResult> CreateCredentials([FromBody] CredentialsCreate create)
@@ -44,7 +44,7 @@ public class CredentialsController : ControllerBase
         }
     }
     
-    //[Authorize(Policy = "OwnDataPolicy")]
+    [Authorize(Policy = "OwnDataPolicy")]
     [HttpGet]
     [Route("get/{request}")]
     public async Task<IActionResult> GetCredentialsById([FromRoute] int request)
@@ -59,6 +59,7 @@ public class CredentialsController : ControllerBase
         }
     }
     
+    [Authorize]
     [HttpGet]
     [Route("getAllByUser")]
     public async Task<IActionResult> GetAllByUser()
@@ -83,7 +84,7 @@ public class CredentialsController : ControllerBase
         }
     }
     
-    //[Authorize(Policy = "OwnDataPolicy")]
+    [Authorize(Policy = "OwnDataPolicy")]
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] CredentialsUpdate update)
     {
@@ -97,7 +98,7 @@ public class CredentialsController : ControllerBase
         }
     }
     
-    //[Authorize(Policy = "OwnDataPolicy")]
+    [Authorize(Policy = "OwnDataPolicy")]
     [HttpDelete]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {

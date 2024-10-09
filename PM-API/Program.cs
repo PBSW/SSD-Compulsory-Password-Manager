@@ -16,20 +16,30 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
     {
-        // Add JWT Authentication to Swagger
-        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
         {
-            Name = "Authorization",
-            Type = SecuritySchemeType.Http,
-            Scheme = "Bearer",
-            BearerFormat = "JWT",
-            In = ParameterLocation.Header,
-            Description =
-                "Enter 'Bearer' [space] and then your token in the text input below.\n\nExample: \"Bearer your_token_here\""
-        });
-    }
-);
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 builder.Services.AddControllers();
 builder.Services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
@@ -121,7 +131,7 @@ builder.Services.AddCors(options =>
 
 
 // Remember to put builder things before this, stupid.
-// Did I do it wrong in the first place? Aaaaa
+// Did I do it wrong in the first place? Aaaaa -PZ
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

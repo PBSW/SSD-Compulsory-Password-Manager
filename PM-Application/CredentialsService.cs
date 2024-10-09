@@ -57,10 +57,10 @@ public class CredentialsService : ICredentialsService
         return _mapper.Map<CredentialsResponse>(getReturn);
     }
 
-    public async Task<List<CredentialsResponse>> GetAllByUser(int user)
+    public async Task<List<PartialCredentialResponse>> GetAllByUser(int user)
     {
         List<ServiceCredentials> listReturn = await _repository.ReadAllByUser(user);
-        return _mapper.Map<List<CredentialsResponse>>(listReturn);
+        return _mapper.Map<List<PartialCredentialResponse>>(listReturn);
     }
 
     public async Task<CredentialsResponse> Update(CredentialsUpdate update)

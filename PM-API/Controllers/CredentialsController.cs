@@ -33,6 +33,7 @@ public class CredentialsController : ControllerBase
         }
     }
     
+    [Authorize(Policy = "OwnDataPolicy")]
     [HttpGet]
     [Route("get/{request}")]
     public async Task<IActionResult> GetCredentialsById([FromRoute] int request)
@@ -59,9 +60,9 @@ public class CredentialsController : ControllerBase
             {
                 return Unauthorized("User is not authenticated.");
             }
-
+            
             // Convert userId to an integer if necessary
-            int parsedUserId = int.Parse(userId);
+            var parsedUserId = int.Parse(userId);
             
             return Ok(await _credentialsService.GetAllByUser(parsedUserId));
         }
@@ -71,6 +72,7 @@ public class CredentialsController : ControllerBase
         }
     }
     
+    [Authorize(Policy = "OwnDataPolicy")]
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] CredentialsUpdate update)
     {
@@ -84,6 +86,7 @@ public class CredentialsController : ControllerBase
         }
     }
     
+    [Authorize(Policy = "OwnDataPolicy")]
     [HttpDelete]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {

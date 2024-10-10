@@ -28,9 +28,9 @@
     <div class="d-flex flex-column">
 
       <div *ngFor="let credential of credentials | filter: searchText">
-        <button class="btn btn-secondary p-3 w-100 mb-2">
+        <div class="btn btn-secondary p-3 w-100 mb-2" (click)="openCredential(credential)">
 
-          <div class="mb-0 w-100 d-flex flex-row justify-content-between align-items-center" (click)="openCredential(credential)">
+          <div class="mb-0 w-100 d-flex flex-row justify-content-between align-items-center">
 
             <p class="mb-0">
               <b>{{ credential.serviceName }}</b> ({{ credential.serviceUsername }})
@@ -39,7 +39,7 @@
             <fa-icon class="text-primary" [icon]="faArrowRight"></fa-icon>
           </div>
 
-        </button>
+        </div>
       </div>
 
     </div>

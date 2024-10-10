@@ -5,7 +5,7 @@ import {NgIf} from '@angular/common';
 import {PasswordGeneratorComponent} from '../../password-generator/password-generator.component';
 import {ConfirmationModalComponent} from '../confirmation-modal/confirmation-modal.component';
 import {
-  CredentialsResponse,
+  CredentialsResponse, emptyCredentialsResponse,
   PartialCredentialsResponse
 } from '../../../models/response';
 import {BackendCredentialsService} from '../../services/backend-credentials.service';
@@ -20,8 +20,8 @@ import {BackendCredentialsService} from '../../services/backend-credentials.serv
 })
 export class CredentialViewEditModalComponent implements OnInit {
   @Input() inputCredential!: PartialCredentialsResponse; // This will receive the credential data from the parent component
-  credential!: CredentialsResponse // object for viewing
-  editedCredential!: CredentialsResponse // object for editing
+  credential: CredentialsResponse | undefined; // object for viewing
+  editedCredential: CredentialsResponse  = emptyCredentialsResponse; // object for editing
   isPasswordVisible = false;
   isEditMode: boolean = false; // Initially in view mode
 
@@ -74,7 +74,18 @@ export class CredentialViewEditModalComponent implements OnInit {
   update() {
     // Logic to handle the update goes here (e.g., make API call)
 
-    this.credential = { ...this.editedCredential };
+    if (!this.credential) {
+      return;
+    }
+
+    this.credential = {
+      id: this.credential.id,
+      serviceName: this.editedCredential.serviceName,
+      serviceUsername: this.editedCredential.serviceUsername,
+      servicePassword: this.editedCredential.servicePassword
+    };
+
+
     this.backend.updateServiceCredentials(this.credential).subscribe((value) => {
       if (value) {
         this.credential = value;
@@ -85,12 +96,14 @@ export class CredentialViewEditModalComponent implements OnInit {
   }
 
   onPasswordGenerated(newPassword: string) {
-    this.credential.servicePassword = newPassword; // Update password field with generated password
+    if (this.isEditMode) {
+      this.editedCredential!.servicePassword = newPassword; // Update password field with generated password
+    }
   }
 
   // Close the modal
   close() {
-    this.activeModal.dismiss();
+    this.activeModal.close();
   }
 
   openDeleteConfirmation() {
@@ -103,6 +116,11 @@ export class CredentialViewEditModalComponent implements OnInit {
 
     modalRef.closed.subscribe((result) => {
       if (result) {
+
+        if (!this.credential) {
+          return;
+        }
+
         this.backend.deleteServiceCredentials(this.credential).subscribe(() => {
           this.activeModal.close();
         });

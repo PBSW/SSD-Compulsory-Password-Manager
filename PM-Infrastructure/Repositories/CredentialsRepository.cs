@@ -42,7 +42,7 @@ public class CredentialsRepository : ICredentialsRepository
 
         if (existingCredentials != null)
         {
-            existingCredentials.ServiceName = update.ServiceUsername;
+            existingCredentials.ServiceName = update.ServiceName;
             existingCredentials.ServiceUsername = update.ServiceUsername;
             existingCredentials.ServicePassword = update.ServicePassword;
             existingCredentials.IV = update.IV;

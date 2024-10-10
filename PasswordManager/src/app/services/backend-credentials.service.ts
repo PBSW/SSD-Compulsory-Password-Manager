@@ -27,7 +27,15 @@ export class BackendCredentialsService {
   }
 
   updateServiceCredentials(credential: CredentialsResponse): Observable<CredentialsResponse> {
-    return this.http.put<CredentialsResponse>('/credentials', credential);
+    const dto = {
+      "id": credential.id,
+      "serviceName": credential.serviceName,
+      "serviceUsername": credential.serviceUsername,
+      "servicePassword": credential.servicePassword,
+    }
+
+
+    return this.http.put<CredentialsResponse>('/credentials', dto);
   }
 
   deleteServiceCredentials(credential: CredentialsResponse): Observable<boolean> {

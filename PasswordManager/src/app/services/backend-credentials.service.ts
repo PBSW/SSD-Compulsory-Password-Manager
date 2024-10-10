@@ -32,7 +32,7 @@ export class BackendCredentialsService {
 
   deleteServiceCredentials(credential: CredentialsResponse): Observable<boolean> {
     // get httpReponse
-    return this.http.delete<HttpResponse<any>>('/credentials/' + credential.id).pipe(
+    return this.http.delete<HttpResponse<any>>('/credentials/delete/' + credential.id).pipe(
       map(response => response.ok)
     );
   }

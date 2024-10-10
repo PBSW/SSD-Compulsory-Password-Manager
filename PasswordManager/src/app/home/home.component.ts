@@ -35,7 +35,7 @@ export class HomeComponent {
 
   openCredential(credential: PartialCredentialsResponse) {
     const modalRef = this.ngbModal.open(CredentialViewEditModalComponent);
-    modalRef.componentInstance.credential = credential;
+    modalRef.componentInstance.inputCredential = credential;
 
     modalRef.result.then(() => {
       this.backendCredentialsService.getAllServiceCredential().subscribe((credentials) => {

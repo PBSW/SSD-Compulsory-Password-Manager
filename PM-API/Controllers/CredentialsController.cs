@@ -84,7 +84,7 @@ public class CredentialsController : ControllerBase
         }
     }
     
-    [Authorize(Policy = "OwnDataPolicy")]
+    [Authorize]
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] CredentialsUpdate update)
     {

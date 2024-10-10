@@ -7,7 +7,6 @@ import {ConfirmationModalComponent} from '../confirmation-modal/confirmation-mod
 import {
   CredentialsResponse,
   emptyCredentialsResponse,
-  emptyPartialCredentialsResponse,
   PartialCredentialsResponse
 } from '../../../models/response';
 import {BackendCredentialsService} from '../../services/backend-credentials.service';
@@ -21,7 +20,7 @@ import {BackendCredentialsService} from '../../services/backend-credentials.serv
   styleUrl: './credential-view-edit-modal.component.scss'
 })
 export class CredentialViewEditModalComponent implements OnInit {
-  @Input() inputCredential: PartialCredentialsResponse = emptyPartialCredentialsResponse; // This will receive the credential data from the parent component
+  @Input() inputCredential!: PartialCredentialsResponse; // This will receive the credential data from the parent component
   credential: CredentialsResponse = emptyCredentialsResponse; // object for viewing
   editedCredential: CredentialsResponse = emptyCredentialsResponse; // object for editing
   isPasswordVisible = false;
@@ -40,6 +39,7 @@ export class CredentialViewEditModalComponent implements OnInit {
     this.backend.getServiceCredentials(this.inputCredential.id).subscribe((credential) => {
       this.credential = credential;
       this.editedCredential = { ...credential };
+      console.log('Received Credential in Modal:', this.inputCredential);
     });
   }
 

@@ -42,18 +42,21 @@ public class CredentialsRepository : ICredentialsRepository
 
         if (existingCredentials != null)
         {
+            existingCredentials.ServiceName = update.ServiceUsername;
             existingCredentials.ServiceUsername = update.ServiceUsername;
-            existingCredentials.ServiceUsername = update.ServicePassword;
+            existingCredentials.ServicePassword = update.ServicePassword;
             existingCredentials.IV = update.IV;
+
+            _dbContext.Entry(existingCredentials).State = EntityState.Modified; // Explicitly mark entity as modified
 
             var result = await _dbContext.SaveChangesAsync();
 
             if (result > 0)
                 return existingCredentials;
             else
-                throw new Exception();
+                throw new Exception("Failed to update the credentials.");
         }
-        throw new Exception();
+        throw new Exception("Credentials not found.");
     }
 
     public async Task<bool> Delete(ServiceCredentials delete)

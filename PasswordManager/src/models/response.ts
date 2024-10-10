@@ -20,14 +20,14 @@ export interface PartialCredentialsResponse {
 
 
 export const emptyCredentialsResponse: CredentialsResponse = {
-  id: 0,
+  id: 1,
   serviceName: '',
   serviceUsername: '',
   servicePassword: ''
 }
 
 export const emptyPartialCredentialsResponse: PartialCredentialsResponse = {
-  id: 0,
+  id: 1,
   serviceName: '',
   serviceUsername: ''
 }

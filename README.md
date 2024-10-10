@@ -76,11 +76,29 @@ Passwords are encrypted before being saved to the database, and the stored IV al
 
 ##### Password Hashing and Salting
 
-a
+Password hashing is essential to ensure that even if an attacker gains access to the database, they cannot easily retrieve user passwords. Our implementation utilizes a secure hashing algorithm, such as PBKDF2, bcrypt, or Argon2, to hash passwords before storing them in the database.
+
+Each password is combined with a unique salt value before being hashed. The salt is a random string that is stored alongside the hashed password in the database. The purpose of the salt is to ensure that identical passwords result in different hash values, thereby protecting against rainbow table attacks and making it significantly harder for attackers to crack passwords using precomputed hashes.
+
+For our implementation:
+
+    Salt Generation: A unique salt is generated for each password when it is created or changed.
+    Hashing: The salted password is hashed using the PBKDF2 algorithm with a high number of iterations, which makes brute-force attacks computationally expensive.
+    Storing: Only the salt and the hashed password are stored in the database, and not the plaintext password itself.
 
 ##### JWTs
 
-use and JWT validation
+WTs (JSON Web Tokens)
+
+JWTs are used to handle authentication in our application. When a user logs in, a JWT is generated and signed using a secret key. This token is then sent to the client, which stores it for subsequent API requests. The client includes this token in the Authorization header of each request to authenticate itself with the backend.
+
+Key features of JWT implementation:
+
+    Signature Verification: Each token is signed using a secure algorithm (HMAC SHA-256) to ensure its integrity. The backend verifies this signature to prevent tampering.
+    Expiration: Tokens have a defined expiration time to limit their lifetime and reduce the risk of misuse.
+    Claims: The token contains claims such as the user's ID, name, and roles to identify the user without repeatedly querying the database.
+
+By using JWTs, we ensure that sensitive information is not included in requests and responses, minimizing the chances of a data leak.
 
 ##### CORS Configuration
 

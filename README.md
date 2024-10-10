@@ -14,11 +14,11 @@ ____________
   - [Security Model discussion](#security-model-discussion)
     - [What are we protecting against?](#what-are-we-protecting-against)
     - [Security Model](#security-model)
-      - [Backend security](#backend-security)
+      - [Backend Security](#backend-security)
         - [Key handling](#key-handling)
         - [Encryption](#encryption)
         - [Password Hashing and Salting](#password-hashing-and-salting)
-        - [JWTs](#jwts)
+        - [JWTs (JSON Web Tokens)](#jwts-json-web-tokens)
         - [CORS Configuration](#cors-configuration)
         - [HTTPS Enforcement](#https-enforcement)
       - [Access Control](#access-control)
@@ -51,14 +51,16 @@ The frontend should now be available at `http://localhost:4200`
 
 ## Screenshots
 
-screenshot.png
+![alt text](<Screenshot 2024-10-10 182656.png>)
+![alt text](<Screenshot 2024-10-10 182630.png>)
+![alt text](<Screenshot 2024-10-10 182635.png>)
+![alt text](<Screenshot 2024-10-10 182645.png>)
 
 ## Security Model discussion
 
 ### What are we protecting against?
 
-Bad actors/malicous users, data breaches. Who are our threat actors?
-Auth handling.
+The threat model is focused on protecting against external attackers, insider threats, and data breaches. External attackers might use brute-force attacks or exploit vulnerabilities to gain unauthorized access. Brute force attacks are made expensive by using a strong hashing algorithm, specifically, Argon2id. Insider threats are mitigated through strong encryption of sensitive data using AES-256, ensuring that even if someone within the organization gains access to the database, the stored data remains encrypted and unreadable. By combining these mechanisms, we safeguard user passwords and sensitive information against potential breaches.
 
 ### Security Model
 
@@ -150,3 +152,5 @@ Fetching all the users credentials is of course necesarry to provide them with a
 Key handling is a potential weak point, especially when it's stored directly in `appsettings.json`. Ideally, this should be handled by something like HashiCorp Vault, to avoid any exposure during deployments or in source control. The inital plan was to dockerize everything and spin up an instance of HashiCorp vault, but this could not be prioritized.
 
 When it comes to sending decrypted passwords, even though we use HTTPS, it still introduces a risk. We could lean on secret management tools to handle client-side decoding, but this complicates things further. It goes against the zero-trust approach, as exposing decrypted data to the client is a major concern.
+
+Ideally, the system should also require stronger master passwords for the Vault, as well a 2-factor authentication.

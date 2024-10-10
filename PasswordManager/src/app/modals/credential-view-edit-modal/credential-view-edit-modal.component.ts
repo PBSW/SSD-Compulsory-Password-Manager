@@ -6,7 +6,6 @@ import {PasswordGeneratorComponent} from '../../password-generator/password-gene
 import {ConfirmationModalComponent} from '../confirmation-modal/confirmation-modal.component';
 import {
   CredentialsResponse,
-  emptyCredentialsResponse,
   PartialCredentialsResponse
 } from '../../../models/response';
 import {BackendCredentialsService} from '../../services/backend-credentials.service';
@@ -21,8 +20,8 @@ import {BackendCredentialsService} from '../../services/backend-credentials.serv
 })
 export class CredentialViewEditModalComponent implements OnInit {
   @Input() inputCredential!: PartialCredentialsResponse; // This will receive the credential data from the parent component
-  credential: CredentialsResponse = emptyCredentialsResponse; // object for viewing
-  editedCredential: CredentialsResponse = emptyCredentialsResponse; // object for editing
+  credential!: CredentialsResponse // object for viewing
+  editedCredential!: CredentialsResponse // object for editing
   isPasswordVisible = false;
   isEditMode: boolean = false; // Initially in view mode
 
@@ -39,7 +38,6 @@ export class CredentialViewEditModalComponent implements OnInit {
     this.backend.getServiceCredentials(this.inputCredential.id).subscribe((credential) => {
       this.credential = credential;
       this.editedCredential = { ...credential };
-      console.log('Received Credential in Modal:', this.inputCredential);
     });
   }
 

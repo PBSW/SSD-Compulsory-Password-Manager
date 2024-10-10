@@ -62,11 +62,18 @@ Auth handling.
 
 ### Security Model
 
-#### Backend security
+#### Backend Security
 
 ##### Key handling
 
-a
+Current State: Currently, the encryption keys and secrets are stored directly in the appsettings.json file. While this is convenient for development, it poses a significant security risk in a production environment. Anyone with access to the source code or deployment package could potentially extract the key and compromise the application's security.
+
+Orignally we had planned to use HarhiCorp Vault but due to time constraints it was scrapped.
+
+Recommended Solution: To handle this securely in a production environment:
+
+- Use a Secrets Manager: We plan to use tools like HashiCorp Vault or Azure Key Vault to manage sensitive keys securely. This approach keeps the keys outside of the application codebase and makes it much harder for an attacker to gain access to these secrets.
+- Environment Variables: For simpler deployments, secrets could be passed through environment variables that are only accessible to the runtime environment.
 
 ##### Encryption
 
@@ -80,23 +87,23 @@ Password hashing is essential to ensure that even if an attacker gains access to
 
 Each password is combined with a unique salt value before being hashed. The salt is a random string that is stored alongside the hashed password in the database. The purpose of the salt is to ensure that identical passwords result in different hash values, thereby protecting against rainbow table attacks and making it significantly harder for attackers to crack passwords using precomputed hashes.
 
+We elected to use Argon2 as it considered among the most secure.
+
 For our implementation:
 
-    Salt Generation: A unique salt is generated for each password when it is created or changed.
-    Hashing: The salted password is hashed using the PBKDF2 algorithm with a high number of iterations, which makes brute-force attacks computationally expensive.
-    Storing: Only the salt and the hashed password are stored in the database, and not the plaintext password itself.
+- Salt Generation: A unique salt is generated for each password when it is created or changed.
+- Hashing: The salted password is hashed using the PBKDF2 algorithm with a high number of iterations, which makes brute-force attacks computationally expensive.
+- Storing: Only the salt and the hashed password are stored in the database, and not the plaintext password itself.
 
-##### JWTs
-
-WTs (JSON Web Tokens)
+##### JWTs (JSON Web Tokens)
 
 JWTs are used to handle authentication in our application. When a user logs in, a JWT is generated and signed using a secret key. This token is then sent to the client, which stores it for subsequent API requests. The client includes this token in the Authorization header of each request to authenticate itself with the backend.
 
 Key features of JWT implementation:
 
-    Signature Verification: Each token is signed using a secure algorithm (HMAC SHA-256) to ensure its integrity. The backend verifies this signature to prevent tampering.
-    Expiration: Tokens have a defined expiration time to limit their lifetime and reduce the risk of misuse.
-    Claims: The token contains claims such as the user's ID, name, and roles to identify the user without repeatedly querying the database.
+- Signature Verification: Each token is signed using a secure algorithm (HMAC SHA-256) to ensure its integrity. The backend verifies this signature to prevent tampering.
+- Expiration: Tokens have a defined expiration time to limit their lifetime and reduce the risk of misuse. Ideally the lifetime would be short, with a refresher, but for simplicity sake it is currently eight hours.
+- Claims: The token contains claims such as the user's ID, name, and roles to identify the user without repeatedly querying the database.
 
 By using JWTs, we ensure that sensitive information is not included in requests and responses, minimizing the chances of a data leak.
 
@@ -113,6 +120,24 @@ HTTPS is enforced for the backend, to ensure the communication between the front
 The CredentialsController uses Access Control mechanisms to ensure users are only reading and writing **their own** data, and not someone elses. One of these mechanisms is simply by relying on fetching the user id from the token (which would already be validated at this point), rather than from a route or body.
 
 A seperate policy, *OwnDataPolocy*, was also created to ensure the exact instance of ServiceCredential the user is attempting to either Read, Delete or Update, is actually owned by them.
+
+Pitfalls and Limitations in Security
+
+Despite our best efforts to secure the application, certain limitations and potential pitfalls exist that should be acknowledged:
+
+- Key Exposure: Currently, the key handling is a weak point since keys are stored in plain text in the appsettings.json file. This exposes the key to anyone with access to the codebase, making it a target for attackers. A secret management solution is highly recommended for production use.
+
+- Decrypted Password Transmission: Sending decrypted passwords from the backend to the client, even over HTTPS, introduces a potential risk. If the HTTPS connection is compromised or if the client device itself is insecure, this information could be intercepted. Ideally, decryption should happen only when absolutely necessary and in a controlled environment.
+
+- Cross-Site Scripting (XSS) Risks: As with any web-based frontend, there is a risk of XSS attacks. Proper validation, encoding, and sanitization of user input in the frontend is crucial to prevent these attacks.
+
+- Token-based Security Limitations: While JWTs provide a convenient mechanism for stateless authentication, they also have some limitations:
+If a token is compromised, it can be used until it expires. Implementing token revocation or short-lived tokens with refresh tokens could mitigate this issue.
+Token storage on the client side should be secured to prevent theft. It's recommended to use secure, HTTP-only cookies or secure storage mechanisms.
+
+- Lack of Rate Limiting: To protect against brute-force attacks, rate limiting should be applied to login endpoints and sensitive operations. Currently, this is not explicitly implemented but is recommended for production use.
+
+- No Client-side Encryption: Sensitive information like passwords is decrypted on the server-side and transmitted to the client as plaintext. Ideally, implementing end-to-end encryption with client-side decryption would minimize the risk of data exposure. However, this complicates the architecture and increases the reliance on secure client storage.
 
 #### Frontend security
 

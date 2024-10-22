@@ -4,10 +4,7 @@ import {FormsModule} from '@angular/forms';
 import {NgIf} from '@angular/common';
 import {PasswordGeneratorComponent} from '../../password-generator/password-generator.component';
 import {ConfirmationModalComponent} from '../confirmation-modal/confirmation-modal.component';
-import {
-  CredentialsResponse, emptyCredentialsResponse,
-  PartialCredentialsResponse
-} from '../../../models/response';
+import {CredentialsResponse, emptyCredentialsResponse, PartialCredentialsResponse} from '../../../models/response';
 import {BackendCredentialsService} from '../../services/backend-credentials.service';
 import {EncryptionService} from '../../services/encryption.service';
 
@@ -37,11 +34,18 @@ export class CredentialViewEditModalComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.backend.getServiceCredentials(this.inputCredential.id).subscribe((credential) => {
-
+    this.backend.getServiceCredentials(this.inputCredential.id).subscribe(async (credential) => {
       if (!credential) {
         return;
       }
+
+      let tempCredential: CredentialsResponse = {
+        id: credential.id,
+        serviceName: credential.serviceName,
+        serviceUsername: credential.serviceUsername,
+        servicePassword: credential.servicePassword
+      }
+
 
       // Decrypt the password
       const key = sessionStorage.getItem('key');
@@ -50,13 +54,11 @@ export class CredentialViewEditModalComponent implements OnInit {
         return;
       }
 
-      this.encryptionService.decrypt(credential.servicePassword, key).then((decryptedPassword) => {
-        credential.servicePassword = decryptedPassword;
-      });
+      tempCredential.servicePassword = await this.encryptionService.decrypt(tempCredential.servicePassword, key);
 
 
-      this.credential = credential;
-      this.editedCredential = { ...credential };
+      this.credential = tempCredential;
+      this.editedCredential = { ...tempCredential };
     });
   }
 
@@ -90,7 +92,7 @@ export class CredentialViewEditModalComponent implements OnInit {
   }
 
   // Update the credentials
-  update() {
+  async update() {
     // Logic to handle the update goes here (e.g., make API call)
 
     if (!this.credential) {
@@ -118,10 +120,7 @@ export class CredentialViewEditModalComponent implements OnInit {
       return;
     }
 
-    this.encryptionService.encrypt(request.servicePassword, key).then((encryptedPassword) => {
-      request.servicePassword = encryptedPassword;
-    });
-
+    request.servicePassword = await this.encryptionService.encrypt(request.servicePassword, key);
 
     this.backend.updateServiceCredentials(request).subscribe((value) => {
       if (value) {

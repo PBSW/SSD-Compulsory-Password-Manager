@@ -34,12 +34,15 @@ export class RegisterComponent {
     return password && confirmPassword && password.value === confirmPassword.value ? null : {mismatch: true};
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     this.registrationAttempted = true; // Mark as attempted
 
     if (this.registerForm.valid) {
       const {username, email, password} = this.registerForm.value;
-      const request: RegisterRequest = {username: username, email: email, password: password};
+
+      const hashedPassword = await this.hashPassword(password); // Hash the password to avoid cleartext traffic
+
+      const request: RegisterRequest = {username: username, email: email, password: hashedPassword};
 
       // Call the backend service to register
       this.backend.register(request).subscribe(
@@ -60,4 +63,20 @@ export class RegisterComponent {
       this.registrationError = true; // Show error message
     }
   }
+
+
+  // Hash the password using SHA-256
+  async hashPassword(password: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    return this.bufferToHex(hashBuffer); // Convert the ArrayBuffer to a hex string
+  }
+
+// Helper method to convert ArrayBuffer to a hex string
+  bufferToHex(buffer: ArrayBuffer): string {
+    const hashArray = Array.from(new Uint8Array(buffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
 }

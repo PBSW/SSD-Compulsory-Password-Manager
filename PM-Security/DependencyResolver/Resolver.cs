@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using PM_Application.Interfaces;
-using PM_Security.Cryptography;
 using PM_Security.Hasher;
 
 
@@ -10,7 +9,6 @@ public class Resolver
 {
     public static void RegisterSecurityLayer(IServiceCollection serviceCollection)
     {
-        serviceCollection.AddScoped<ICryptographyHelper, CryptographyHelper>();
         serviceCollection.AddScoped<IJwtProvider, JwtProvider>();
         serviceCollection.AddScoped<IPasswordHasher, PasswordHasher>();
     }

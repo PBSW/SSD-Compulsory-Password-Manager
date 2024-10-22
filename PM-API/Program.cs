@@ -48,7 +48,6 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 
 // Register configuration options for secrets
-builder.Services.Configure<CryptographyOptions>(builder.Configuration.GetSection("Cryptography"));
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 builder.Services.Configure<HashOptions>(builder.Configuration.GetSection("Hash"));
 

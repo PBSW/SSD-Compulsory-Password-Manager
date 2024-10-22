@@ -23,7 +23,7 @@ export const emptyCredentialsResponse: CredentialsResponse = {
   id: 1,
   serviceName: '',
   serviceUsername: '',
-  servicePassword: ''
+  servicePassword: '',
 }
 
 export const emptyPartialCredentialsResponse: PartialCredentialsResponse = {

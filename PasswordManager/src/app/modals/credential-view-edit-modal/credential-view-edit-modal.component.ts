@@ -9,6 +9,7 @@ import {
   PartialCredentialsResponse
 } from '../../../models/response';
 import {BackendCredentialsService} from '../../services/backend-credentials.service';
+import {EncryptionService} from '../../services/encryption.service';
 
 
 @Component({
@@ -28,7 +29,8 @@ export class CredentialViewEditModalComponent implements OnInit {
   constructor(
     public activeModal: NgbActiveModal,
     private modalService: NgbModal,
-    private backend: BackendCredentialsService
+    private backend: BackendCredentialsService,
+    private encryptionService: EncryptionService
   ) {
 
   }
@@ -36,6 +38,23 @@ export class CredentialViewEditModalComponent implements OnInit {
 
   ngOnInit(): void {
     this.backend.getServiceCredentials(this.inputCredential.id).subscribe((credential) => {
+
+      if (!credential) {
+        return;
+      }
+
+      // Decrypt the password
+      const key = sessionStorage.getItem('key');
+      if (!key) {
+        console.error('Key not found');
+        return;
+      }
+
+      this.encryptionService.decrypt(credential.servicePassword, key).then((decryptedPassword) => {
+        credential.servicePassword = decryptedPassword;
+      });
+
+
       this.credential = credential;
       this.editedCredential = { ...credential };
     });
@@ -85,8 +104,26 @@ export class CredentialViewEditModalComponent implements OnInit {
       servicePassword: this.editedCredential.servicePassword
     };
 
+    let request: CredentialsResponse = {
+      id: this.credential.id,
+      serviceName: this.credential.serviceName,
+      serviceUsername: this.credential.serviceUsername,
+      servicePassword: this.credential.servicePassword
+    }
 
-    this.backend.updateServiceCredentials(this.credential).subscribe((value) => {
+    // Encrypt the password in request
+    const key = sessionStorage.getItem('key');
+    if (!key) {
+      console.error('Key not found');
+      return;
+    }
+
+    this.encryptionService.encrypt(request.servicePassword, key).then((encryptedPassword) => {
+      request.servicePassword = encryptedPassword;
+    });
+
+
+    this.backend.updateServiceCredentials(request).subscribe((value) => {
       if (value) {
         this.credential = value;
       }

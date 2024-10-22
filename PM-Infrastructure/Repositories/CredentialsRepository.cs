@@ -45,7 +45,6 @@ public class CredentialsRepository : ICredentialsRepository
             existingCredentials.ServiceName = update.ServiceName;
             existingCredentials.ServiceUsername = update.ServiceUsername;
             existingCredentials.ServicePassword = update.ServicePassword;
-            existingCredentials.IV = update.IV;
 
             _dbContext.Entry(existingCredentials).State = EntityState.Modified; // Explicitly mark entity as modified
 

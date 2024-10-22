@@ -25,15 +25,15 @@ export class AuthService {
   // Call this method to set the token (e.g., after logging in)
   login(token: string): void {
     this.token = token;
-    // Optionally, store it in local storage
-    localStorage.setItem('token', token);
+    // Optionally, store it in session storage
+    sessionStorage.setItem('token', token);
     this.authState.next(token);
   }
 
   // Call this method to get the token
   getToken(): string | null {
-    // Retrieve from local storage if needed
-    return this.token || localStorage.getItem('token');
+    // Retrieve from session storage if needed
+    return this.token || sessionStorage.getItem('token');
   }
 
   isAuthenticated(): Observable<boolean> {
@@ -85,7 +85,8 @@ export class AuthService {
   // Call this method to logout
   logout(): void {
     this.token = null;
-    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('key');
     this.authState.next(null);
     this.router.navigate(['/login']); // Redirect to login on logout
   }

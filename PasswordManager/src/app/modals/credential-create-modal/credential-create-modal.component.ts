@@ -4,6 +4,8 @@ import {CredentialsCreate} from '../../../models/request';
 import {FormsModule} from '@angular/forms';
 import {PasswordGeneratorComponent} from '../../password-generator/password-generator.component';
 import {BackendCredentialsService} from '../../services/backend-credentials.service';
+import {KeyDerivationService} from '../../services/key-derivation.service';
+import {EncryptionService} from '../../services/encryption.service';
 
 @Component({
   selector: 'app-credential-create-modal',
@@ -23,10 +25,26 @@ export class CredentialCreateModalComponent {
     servicePassword: ''
   };
 
-  constructor(public activeModal: NgbActiveModal, private backend: BackendCredentialsService) {}
+  constructor(public activeModal: NgbActiveModal, private backend: BackendCredentialsService, private encryptionService: EncryptionService) {}
 
-  onCreate() {
-    this.backend.createServiceCredential(this.credential).subscribe((value) => {
+  async onCreate() {
+    // get encryption key
+    const key = sessionStorage.getItem('key');
+    if (!key) {
+      console.error('Key not found');
+      return;
+    }
+
+    // Encrypt the password
+    const encryptedPassword = await this.encryptionService.encrypt(this.credential.servicePassword, key);
+
+    let request: CredentialsCreate = {
+      serviceName: this.credential.serviceName,
+      serviceUsername: this.credential.serviceUsername,
+      servicePassword: encryptedPassword
+    };
+
+    this.backend.createServiceCredential(request).subscribe((value) => {
       if (value) {
         this.activeModal.close(); // Close the modal
       }

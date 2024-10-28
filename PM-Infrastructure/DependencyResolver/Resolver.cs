@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using PM_Application.Interfaces;
 using PM_Application.Interfaces.Repositories;
 using PM_Infrastructure.Repositories;
 
@@ -10,5 +11,6 @@ public class Resolver
     {
         serviceCollection.AddScoped<ICredentialsRepository, CredentialsRepository>();
         serviceCollection.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
+        serviceCollection.AddScoped<ISecretService, VaultService>();
     }
 }

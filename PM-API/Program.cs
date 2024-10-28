@@ -10,6 +10,7 @@ using PM_API.Policies;
 using PM_Infrastructure;
 using PM_Security;
 using PM_Security.Hasher;
+using PM_Application.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,9 +46,7 @@ builder.Services.AddControllers();
 builder.Services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-
-
-// Register configuration options for secrets
+// Register configuration options for non-secret configuration
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 builder.Services.Configure<HashOptions>(builder.Configuration.GetSection("Hash"));
 
@@ -72,7 +71,16 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
     options.EnableDetailedErrors();
 });
 
-// Authentication setup
+// Configure JWT Authentication to use Vault secret
+var app = builder.Build();
+string jwtSecret;
+
+using (var scope = app.Services.CreateScope())
+{
+    var secretService = scope.ServiceProvider.GetRequiredService<ISecretService>();
+    jwtSecret = secretService.GetSecretAsync("secret/jwt", "key").Result;
+}
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -81,12 +89,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"], // replace with your actual issuer
-            ValidAudience = builder.Configuration["Jwt:Audience"], // replace with your actual audience
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
-            RequireSignedTokens = true, // Ensure tokens are signed
-            RequireExpirationTime = true, // Ensure tokens have an expiration time
-            ValidateIssuerSigningKey = true // Validate the signing key without using 'kid'
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)), // Use the Vault-provided key
+            RequireSignedTokens = true,
+            RequireExpirationTime = true,
+            ValidateIssuerSigningKey = true
         };
         options.Events = new JwtBearerEvents
         {
@@ -127,12 +135,7 @@ builder.Services.AddCors(options =>
     );
 });
 
-
-// Remember to put builder things before this, stupid.
-// Did I do it wrong in the first place? Aaaaa -PZ
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
+// Build and configure the app
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -153,9 +156,6 @@ app.UseCors("AllowAngularLocalhost"); // Apply CORS policy before authentication
 
 app.UseAuthentication(); // Authenticate the user
 app.UseAuthorization(); // Authorize the user based on the authentication
-
-app.UseSwagger();
-app.UseSwaggerUI();
 
 app.MapControllers();
 

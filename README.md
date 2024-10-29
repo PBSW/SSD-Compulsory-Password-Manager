@@ -45,7 +45,7 @@ The backend should now be available at `https://localhost:7157`
 2. Open a terminal.
 3. Navigate to the *PasswordManager* directory with `cd .\PasswordManager\`.
 4. Run `npm install` to install all the dependencies.
-5. Run the backend with `ng servce`.
+5. Run the backend with `ng serve`.
 
 The frontend should now be available at `http://localhost:4200`
 
@@ -60,7 +60,13 @@ The frontend should now be available at `http://localhost:4200`
 
 ### What are we protecting against?
 
-The threat model is focused on protecting against external attackers, insider threats, and data breaches. External attackers might use brute-force attacks or exploit vulnerabilities to gain unauthorized access. Brute force attacks are made expensive by using a strong hashing algorithm, specifically, Argon2id. Insider threats are mitigated through strong encryption of sensitive data using AES-256, ensuring that even if someone within the organization gains access to the database, the stored data remains encrypted and unreadable. By combining these mechanisms, we safeguard user passwords and sensitive information against potential breaches.
+The threat model is focused on protecting against external attackers, and data breaches. 
+External attackers might use brute-force attacks or exploit vulnerabilities to gain unauthorized access. Brute force attacks are made expensive by using a strong hashing algorithm, specifically, Argon2id. 
+Insider threats are also mostly mitigated through strong encryption of sensitive data using AES-GCM-256 on the client-side. This ensures that even if someone within the organization gains access to the database, the stored data remains encrypted and unreadable. The key is completely unknown by the server, and only reproducable with the exact cleartext master password and username. 
+
+The primary weakpoint in the system, allowing the encrypted password to be decrypted by a threat actor, would be to extract the pre-hashed password from the servers memory and use it in a rainbow-table. Afterwhich, they would need access to the database, which is not particularly hard given that a SQLite database is used in this implementation. Finding this specific users master username, they would be able to recreate the users encryption key. Splicing the cipher text and IV from the encrypted credential-password, they would then be able to decrypt it themselves. This would only compromise a single user, and a such, the implementation is also reasonably safe against insider threats, although not perfectly so.
+
+By combining these mechanisms, we safeguard user passwords and sensitive information against potential breaches.
 
 ### Security Model
 
@@ -79,22 +85,23 @@ Recommended Solution: To handle this securely in a production environment:
 
 ##### Encryption
 
-To protect sensitive data at rest, AES-256 is used to handle password encryption in the app. The CryptographyHelper, used for decryption and encryption, takes a base64-encoded key from CryptographyOptions, ensuring it's a valid length for AES (16, 24, or 32 bytes). For each password, a new IV is generated and stored along with the encrypted data. This way, even if the same password is used multiple times, the result will be different.
+To protect sensitive data at rest, AES-GCM-256 is used to handle password encryption in the app. All encryption is handled client side with unique key derived via PBKDF2 from the users password, salted with their username to avoid rainbow table attacks. Using a unique key per user versus using a singular encryption key in the backend is intended to avoid a single point of failure. If the singular key is exposed by either an outsider- or insider threat, the entire userbase's credentials would be compromised. The derived user key replicable only by the user, as it is salted with a unique username. Of course, that is if they utilize strong and unique master credentials for the password manager. The key is stored in session storage, to avoid persisting it for longer than necesarry.
 
-Passwords are encrypted before being saved to the database, and the stored IV allows them to be decrypted later. The same key is used across all encryption/decryption, but the IV ensures unique encryption every time.
+A random IV is generated when encrypting a password, which is stored in the same string as the cipher. When decrypting a password, the cipher text and IV are seperated, and subsequently decrypted with the users key. 
 
 ##### Password Hashing and Salting
 
-Password hashing is essential to ensure that even if an attacker gains access to the database, they cannot easily retrieve user passwords. Our implementation utilizes a secure hashing algorithm, such as PBKDF2, bcrypt, or Argon2, to hash passwords before storing them in the database.
+Password hashing is essential to ensure that even if an attacker gains access to the database, they cannot easily retrieve user passwords. Our implementation utilizes Argon2id, which is currently among the strongest hashing algorithms available.
 
 Each password is combined with a unique salt value before being hashed. The salt is a random string that is stored alongside the hashed password in the database. The purpose of the salt is to ensure that identical passwords result in different hash values, thereby protecting against rainbow table attacks and making it significantly harder for attackers to crack passwords using precomputed hashes.
 
-We elected to use Argon2 as it considered among the most secure.
+However, the password being hashed in the backend is not the plaintext password. Before sending the password to backend, the frontend will do a quick SHA-256 hash on the password to avoid cleartext traffic of the master password, which could be extracted from memory by threat actors. This hash is however vulnerable to rainbow-table attacks, as it is not salted. Still, it does make the attack vector less likely.
 
 For our implementation:
 
+- Frontend hashing: The password goes through an unsalted SHA-256 hash. 
 - Salt Generation: A unique salt is generated for each password when it is created or changed.
-- Hashing: The salted password is hashed using the PBKDF2 algorithm with a high number of iterations, which makes brute-force attacks computationally expensive.
+- Hashing: The salted password is hashed using the Argon2id algorithm with a high number of iterations, which makes brute-force attacks computationally expensive.
 - Storing: Only the salt and the hashed password are stored in the database, and not the plaintext password itself.
 
 ##### JWTs (JSON Web Tokens)
@@ -143,14 +150,16 @@ Token storage on the client side should be secured to prevent theft. It's recomm
 
 #### Frontend security
 
-Various methods were used to help secure the frontend. JSON Web Tokens were naturally implemented as a core part of the frontend security, given that this is crucial for communicating with the backend. But the token claims are also validated in the frontend, to help avoid any potentially manipulated token. The application also uses the auth system to protect the `/home` route, where the user can find their stored credentials.
+Various methods were used to help secure the frontend. JSON Web Tokens were naturally implemented as a core part of the frontend security, given that this is crucial for communicating with the backend. But the token claims are also validated in the frontend, to help avoid any potentially manipulated token. The application also uses the auth system to protect the `/home` route, where the user can find their stored credentials. It is at this point only, that the password of a users credential is decrypted.
 
 Fetching all the users credentials is of course necesarry to provide them with a list of their data, but only a partial of the data model is recived as passwords are omitted. The full "ServiceCredential" object is recived upon a *Get* for a single ServiceCredential, when the given ServiceCredential is opened. This part is also done through Modals, to avoid any chance of path-traversal to another users credentials.
 
 ### Pitfalls and limitation in security
 
-Key handling is a potential weak point, especially when it's stored directly in `appsettings.json`. Ideally, this should be handled by something like HashiCorp Vault, to avoid any exposure during deployments or in source control. The inital plan was to dockerize everything and spin up an instance of HashiCorp vault, but this could not be prioritized.
+Ideally, the system should also require stronger master passwords for the password vault, as well a 2-factor authentication.
 
-When it comes to sending decrypted passwords, even though we use HTTPS, it still introduces a risk. We could lean on secret management tools to handle client-side decoding, but this complicates things further. It goes against the zero-trust approach, as exposing decrypted data to the client is a major concern.
+As mentioned elsewhere, the pre-hashed password in the frontend should ideally have been salted in some manner, and perhaps even have utilized a stronger encryption algorithm such a Bcrypt.
 
-Ideally, the system should also require stronger master passwords for the Vault, as well a 2-factor authentication.
+Although the solution is completely dockerized, it still uilizes a SQLite database, which is suboptimal for security as it provides no access-control mechanisms. While perfectly fine for development environments, an SQL Server instance should be spun up with non-default credentials to further reduce the risk of insider threats.
+
+There are still limits as to what can be protected against. In a situation wherein a user's PC has already been infiltrated by a malicous actor, this actor would be able to retrieve the users key for themselves if a session is active, or even just extract their master login credentials with a KeyLogger.

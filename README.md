@@ -74,14 +74,9 @@ By combining these mechanisms, we safeguard user passwords and sensitive informa
 
 ##### Key handling
 
-Current State: Currently, the encryption keys and secrets are stored directly in the appsettings.json file. While this is convenient for development, it poses a significant security risk in a production environment. Anyone with access to the source code or deployment package could potentially extract the key and compromise the application's security.
+We now manage our encryption keys and secrets using HashiCorp Vault instead of storing them directly in the appsettings.json file. This approach offers a significant improvement in security, as sensitive information is no longer embedded within the application's configuration files. HashiCorp Vault provides robust access controls and logging, which helps protect against unauthorized access.
 
-Orignally we had planned to use HarhiCorp Vault but due to time constraints it was scrapped.
-
-Recommended Solution: To handle this securely in a production environment:
-
-- Use a Secrets Manager: We plan to use tools like HashiCorp Vault or Azure Key Vault to manage sensitive keys securely. This approach keeps the keys outside of the application codebase and makes it much harder for an attacker to gain access to these secrets.
-- Environment Variables: For simpler deployments, secrets could be passed through environment variables that are only accessible to the runtime environment.
+Vault is already configured to run in production mode, so that the data is persisted during development. When setting the entire system up in a production environment, new key fragements should be generated for Vault.
 
 ##### Encryption
 

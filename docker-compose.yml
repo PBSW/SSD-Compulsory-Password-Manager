@@ -8,12 +8,14 @@ services:
       - "5229:5229"
     depends_on:
       - vault
-      
+    networks:
+      - my-network
+  
   vault:
     image: hashicorp/vault:latest
     container_name: vault
-    ports: 
-    - "8200:8200"
+    ports:
+      - "8200:8200"
     environment:
       VAULT_ADDR: "http://127.0.0.1:8200"
     cap_add:
@@ -21,4 +23,24 @@ services:
     volumes:
       - ./vault/data:/vault/data
       - ./vault:/vault/config
-    command: ["server"]
+    command: [ "server" ]
+    networks:
+      - my-network
+  
+  frontend:
+    container_name: frontend
+    build:
+      context: ./PasswordManager
+      dockerfile: Dockerfile
+    depends_on:
+      - backend
+    ports:
+      - "4201:4200"
+    command: [ "ng", "serve", "--host", "0.0.0.0" ]
+    networks:
+      - my-network
+        
+        
+networks:
+  my-network:
+    driver: bridge

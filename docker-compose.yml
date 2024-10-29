@@ -35,8 +35,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "4201:4200"
-    command: [ "ng", "serve", "--host", "0.0.0.0" ]
+      - "8000:80"
     networks:
       - my-network
         

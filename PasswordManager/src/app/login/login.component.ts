@@ -9,6 +9,8 @@ import {LoginRequest} from '../../models/request';
 import {catchError, of, tap} from 'rxjs';
 import {KeyDerivationService} from '../services/key-derivation.service';
 
+
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -41,7 +43,7 @@ export class LoginComponent {
     if (this.loginForm.valid) {
       const {username, password} = this.loginForm.value;
 
-      const hashedPassword = await this.hashPassword(password); // Hash the password to avoid cleartext traffic
+      const hashedPassword = await this.hashPassword(password, username); // Hash the password to avoid cleartext traffic
 
       const request: LoginRequest = {username: username, password: hashedPassword}; // Create the request object
 
@@ -68,10 +70,25 @@ export class LoginComponent {
   }
 
   // Hash the password using SHA-256
-  async hashPassword(password: string): Promise<string> {
+  async hashPassword(password: string, username: any): Promise<string> {
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+
+    // Round 1
+    const hash1Buffer = await crypto.subtle.digest('SHA-256', data);
+    const hash1 = this.bufferToHex(hash1Buffer); // Convert the ArrayBuffer to a hex string
+
+    // Round 2
+    const data2 = encoder.encode(username + hash1); // Combine the username and first hash
+
+    const hash2Buffer = await crypto.subtle.digest('SHA-256', data2);
+    const hash2 = this.bufferToHex(hash2Buffer); // Convert the ArrayBuffer to a hex string
+
+    // combine the two hashes and final hash
+    const finalHash = hash1 + hash2;
+    const finalHashBuffer = encoder.encode(finalHash);
+
+    const hashBuffer = await crypto.subtle.digest('SHA-256', finalHashBuffer);
     return this.bufferToHex(hashBuffer); // Convert the ArrayBuffer to a hex string
   }
 

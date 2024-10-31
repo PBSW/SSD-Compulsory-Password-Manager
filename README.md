@@ -92,7 +92,7 @@ Password hashing is essential to ensure that even if an attacker gains access to
 
 Each password is combined with a unique salt value before being hashed. The salt is a random string that is stored alongside the hashed password in the database. The purpose of the salt is to ensure that identical passwords result in different hash values, thereby protecting against rainbow table attacks and making it significantly harder for attackers to crack passwords using precomputed hashes.
 
-However, the password being hashed in the backend is not the plaintext password. Before sending the password to backend, the frontend will do a quick SHA-256 hash on the password to avoid cleartext traffic of the master password, which could be extracted from memory by threat actors. This hash is however vulnerable to rainbow-table attacks, as it is not salted. Still, it does make the attack vector less likely.
+However, the password being hashed in the backend is not the plaintext password. Before sending the password to backend, the frontend will do three rounds of SHA-256 hashes (one of which including the username) on the password to avoid cleartext traffic of the master password, which could be extracted from memory by threat actors. Doing three rounds, and throwing the username into the equation as well should protect against rainbow-table attacks, although SHA-256 is by design intended to be fast, and not secure. So there might be improvements to be made with another hashing algorithm.
 
 For our implementation:
 
@@ -148,14 +148,13 @@ Fetching all the users credentials is of course necesarry to provide them with a
 
 Ideally, the system should also require stronger master passwords for the password vault, as well a 2-factor authentication.
 
-As mentioned elsewhere, the pre-hashed password in the frontend should ideally have been salted in some manner, and perhaps even have utilized a stronger encryption algorithm such a Bcrypt.
+As mentioned elsewhere, the pre-hashed password in the frontend could be improved had a  stronger encryption algorithm such a Bcrypt been utilized.
 
 Although the solution is completely dockerized, it still uilizes a SQLite database, which is suboptimal for security as it provides no access-control mechanisms. While perfectly fine for development environments, an SQL Server instance should be spun up with non-default credentials to further reduce the risk of insider threats.
 
 While key handling is done somewhat correctly with Hashicorp Vault, the current implementation will only fetch keys once at application startup, and then have them stored in memory as cleartext. This is still not entirely ideal on two fronts:
 1. The keys are still stored within memory, when they might have been more secure if they were only fetched as needed. This would however require continously unsealing, authenticating, fetching, and sealing with Vault, in which it could likely still be extracted from memory with the right timing.
 2. The current implementation does not support key rotation, neither in downtime nor runtime. Runtime key-rotation would be vital in a production environment to further protect against any insider threats that may attempt to steal the current key.
-
 
 Another consequence of having it dockerized is that HTTPS is not available the same way on a Release build as a Development build on the backend. As such communication occurs over HTTP rather than HTTPS which is not ideal. This can be mitigated by using a reverse proxy in front of the backend, with a valid certificate attached.
 

@@ -5,11 +5,10 @@ services:
       context: .
       dockerfile: ./PM-API/Dockerfile
     ports:
-      - "5229:5229"
+      - "5000:8080"
     depends_on:
       - vault
-    networks:
-      - my-network
+
   
   vault:
     image: hashicorp/vault:latest
@@ -24,8 +23,7 @@ services:
       - ./vault/data:/vault/data
       - ./vault:/vault/config
     command: [ "server" ]
-    networks:
-      - my-network
+
   
   frontend:
     container_name: frontend
@@ -36,10 +34,6 @@ services:
       - backend
     ports:
       - "8000:80"
-    networks:
-      - my-network
+
         
         
-networks:
-  my-network:
-    driver: bridge

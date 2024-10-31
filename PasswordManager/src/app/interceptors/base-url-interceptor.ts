@@ -3,7 +3,7 @@ import {HttpEvent, HttpHandler, HttpHandlerFn, HttpInterceptor, HttpRequest} fro
 import {Observable} from 'rxjs';
 
 
-const baseUrl = 'https://localhost:7157'; // Define the base URL
+const baseUrl = 'http://localhost:5000'; // Define the base URL
 
 export function baseUrlInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) {
 

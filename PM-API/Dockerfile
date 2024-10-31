@@ -12,6 +12,8 @@ COPY ["PM-Application/PM-Application.csproj", "PM-Application/"]
 COPY ["PM-Domain/PM-Domain.csproj", "PM-Domain/"]
 COPY ["PM-Infrastructure/PM-Infrastructure.csproj", "PM-Infrastructure/"]
 COPY ["PM-Security/PM-Security.csproj", "PM-Security/"]
+
+
 RUN dotnet restore "PM-API/PM-API.csproj"
 COPY . .
 WORKDIR "/src/PM-API"

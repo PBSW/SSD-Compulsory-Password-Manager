@@ -17,6 +17,9 @@ public class VaultService : ISecretService
 
     public VaultService()
     {
+
+    
+        
         // content root path
         var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         var keyPath = Path.Combine(path, "vault_keys.json");

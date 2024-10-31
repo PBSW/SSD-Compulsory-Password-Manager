@@ -1,3 +1,4 @@
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -97,6 +98,7 @@ builder.Services.PostConfigure<HashOptions>(options =>
 });
 
 
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -144,12 +146,15 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularLocalhost",
         corsBuilder => corsBuilder
-            .WithOrigins("http://localhost:4200") // Ensure this matches the Angular app URL exactly
+            .WithOrigins("http://localhost:8000") // Ensure this matches the Angular app URL exactly
             .AllowAnyMethod() // Allow all HTTP methods
             .AllowAnyHeader() // Allow all headers
             .AllowCredentials() // Allow sending credentials (cookies or authorization headers)
     );
 });
+
+
+
 
 // Configure JWT Authentication to use Vault secret
 var app = builder.Build();

@@ -8,8 +8,6 @@ ____________
 
 - [SSD Compulsory Assignment/Mini-Project](#ssd-compulsory-assignmentmini-project)
   - [How to run the application](#how-to-run-the-application)
-    - [Backend](#backend)
-    - [Frontend](#frontend)
   - [Screenshots](#screenshots)
   - [Security Model discussion](#security-model-discussion)
     - [What are we protecting against?](#what-are-we-protecting-against)
@@ -20,34 +18,16 @@ ____________
         - [Password Hashing and Salting](#password-hashing-and-salting)
         - [JWTs (JSON Web Tokens)](#jwts-json-web-tokens)
         - [CORS Configuration](#cors-configuration)
-        - [HTTPS Enforcement](#https-enforcement)
       - [Access Control](#access-control)
       - [Frontend security](#frontend-security)
     - [Pitfalls and limitation in security](#pitfalls-and-limitation-in-security)
 
 ## How to run the application
 
-The project contains two "applications", the frontend and backend. Both of which must be running simultaneously.
-
-### Backend
-
-1. The backend is built with DotNet and therefore requires you to have the .NET SDK installed.
-2. Open a terminal.
-3. Navigate to the *PM-API* directory with `cd .\PM-API\`.
-4. Call `dotnet restore` to fetch any missing dependencies.
-5. Run the backend with `dotnet run`.
-
-The backend should now be available at `https://localhost:7157`
-
-### Frontend
-
-1. The frontend is built with Angular 18 and this requires you to have both Node.js and installed and the Angular CLI installed. After having installed node, the Angular CLI can be installed via `npm install -g @angular/cli`.
-2. Open a terminal.
-3. Navigate to the *PasswordManager* directory with `cd .\PasswordManager\`.
-4. Run `npm install` to install all the dependencies.
-5. Run the backend with `ng serve`.
-
-The frontend should now be available at `http://localhost:4200`
+The project contains two "applications", the frontend and backend, as well a a Vault. These are all dockerized and can be run with 
+```
+docker-compose up -d
+```
 
 ## Screenshots
 
@@ -137,9 +117,7 @@ By using JWTs, we ensure that sensitive information is not included in requests 
 
 As this is a distributed system, CORS must be configured in order for the frontend and backend to communicate. Since only these two should be in communication for in the systems current state, a single policy for allowing a `http://localhost:4200` origin with any method is active. Should a third party attempt to make requests to the backend, they would be met with CORS errors.
 
-##### HTTPS Enforcement
 
-HTTPS is enforced for the backend, to ensure the communication between the frontend and backend is encrypted.
 
 #### Access Control
 
@@ -151,10 +129,6 @@ Pitfalls and Limitations in Security
 
 Despite our best efforts to secure the application, certain limitations and potential pitfalls exist that should be acknowledged:
 
-- Key Exposure: Currently, the key handling is a weak point since keys are stored in plain text in the appsettings.json file. This exposes the key to anyone with access to the codebase, making it a target for attackers. A secret management solution is highly recommended for production use.
-
-- Decrypted Password Transmission: Sending decrypted passwords from the backend to the client, even over HTTPS, introduces a potential risk. If the HTTPS connection is compromised or if the client device itself is insecure, this information could be intercepted. Ideally, decryption should happen only when absolutely necessary and in a controlled environment.
-
 - Cross-Site Scripting (XSS) Risks: As with any web-based frontend, there is a risk of XSS attacks. Proper validation, encoding, and sanitization of user input in the frontend is crucial to prevent these attacks.
 
 - Token-based Security Limitations: While JWTs provide a convenient mechanism for stateless authentication, they also have some limitations:
@@ -163,7 +137,6 @@ Token storage on the client side should be secured to prevent theft. It's recomm
 
 - Lack of Rate Limiting: To protect against brute-force attacks, rate limiting should be applied to login endpoints and sensitive operations. Currently, this is not explicitly implemented but is recommended for production use.
 
-- No Client-side Encryption: Sensitive information like passwords is decrypted on the server-side and transmitted to the client as plaintext. Ideally, implementing end-to-end encryption with client-side decryption would minimize the risk of data exposure. However, this complicates the architecture and increases the reliance on secure client storage.
 
 #### Frontend security
 
@@ -178,5 +151,12 @@ Ideally, the system should also require stronger master passwords for the passwo
 As mentioned elsewhere, the pre-hashed password in the frontend should ideally have been salted in some manner, and perhaps even have utilized a stronger encryption algorithm such a Bcrypt.
 
 Although the solution is completely dockerized, it still uilizes a SQLite database, which is suboptimal for security as it provides no access-control mechanisms. While perfectly fine for development environments, an SQL Server instance should be spun up with non-default credentials to further reduce the risk of insider threats.
+
+While key handling is done somewhat correctly with Hashicorp Vault, the current implementation will only fetch keys once at application startup, and then have them stored in memory as cleartext. This is still not entirely ideal on two fronts:
+1. The keys are still stored within memory, when they might have been more secure if they were only fetched as needed. This would however require continously unsealing, authenticating, fetching, and sealing with Vault, in which it could likely still be extracted from memory with the right timing.
+2. The current implementation does not support key rotation, neither in downtime nor runtime. Runtime key-rotation would be vital in a production environment to further protect against any insider threats that may attempt to steal the current key.
+
+
+Another consequence of having it dockerized is that HTTPS is not available the same way on a Release build as a Development build on the backend. As such communication occurs over HTTP rather than HTTPS which is not ideal. This can be mitigated by using a reverse proxy in front of the backend, with a valid certificate attached.
 
 There are still limits as to what can be protected against. In a situation wherein a user's PC has already been infiltrated by a malicous actor, this actor would be able to retrieve the users key for themselves if a session is active, or even just extract their master login credentials with a KeyLogger.

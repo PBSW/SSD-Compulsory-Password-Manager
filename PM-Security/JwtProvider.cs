@@ -13,9 +13,15 @@ public class JwtProvider : IJwtProvider
     private readonly string _issuer;
     private readonly string _audience;
     
-    public JwtProvider(IOptions<JwtOptions> options, ISecretService secretService)
+    public JwtProvider(IOptions<JwtOptions> options)
     {
-        _secret = secretService.GetSecretAsync("secret/jwt", "key").Result ?? throw new ArgumentNullException(nameof(_secret), "JWT secret cannot be null");
+        _secret = options.Value.Key ?? throw new ArgumentNullException(nameof(_secret), "JWT secret cannot be null");
+
+        if (string.IsNullOrEmpty(_secret))
+        {
+            throw new ArgumentNullException(nameof(_secret),"Key not retrieved from Vault");
+        }
+        
         _issuer = options.Value.Issuer ?? throw new ArgumentNullException(nameof(options.Value.Issuer), "JWT issuer cannot be null");
         _audience = options.Value.Audience ?? throw new ArgumentNullException(nameof(options.Value.Audience), "JWT audience cannot be null");
     }

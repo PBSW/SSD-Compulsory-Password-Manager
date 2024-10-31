@@ -11,6 +11,6 @@ public class Resolver
     {
         serviceCollection.AddScoped<ICredentialsRepository, CredentialsRepository>();
         serviceCollection.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
-        serviceCollection.AddScoped<ISecretService, VaultService>();
+        //serviceCollection.AddScoped<ISecretService, VaultService>();
     }
 }

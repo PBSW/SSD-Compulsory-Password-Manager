@@ -78,6 +78,28 @@ We now manage our encryption keys and secrets using HashiCorp Vault instead of s
 
 Vault is already configured to run in production mode, so that the data is persisted during development. When setting the entire system up in a production environment, new key fragements should be generated for Vault.
 
+The Vault will always be sealed, meaning it cannot be accessed, even with a "root" access token. It will only ever briefly be unsealed when starting up the application to retrieve the necesarry keys, afterwhich it will immediatly be sealed again.
+
+Unsealing the vault and accessing means multiple unseal keys and an access token must be provided. These must be provided in the "*vault_keys.json* file in the root of the API-project. This file is not under version control, and not available in the repository. When running the application for the first time, you must remove the "data" directory with in the "vault" folder present at the root of this repository. You must initialize vault yourself and provide your own unseal keys and token in the file with the following format:
+
+```
+{
+  "Keys": [
+    "<unseal-key-1>",
+    "<unseal-key-2>",
+    "<unseal-key-3>",
+    "<unseal-key-4>",
+    "<unseal-key-5>"
+  ],
+  "Token": "<access-token>"
+}
+```
+
+The application expects the keys to be available in the KeyValue secret engine at both "/data/jwt" and "/data/hash". Setup keys for these paths within Vault. Use the following images for examples:
+
+![Vault secret path example 1](<Screenshots/vault_Screenshot 2024-10-31 124556.png>)
+![Vault secret path example 2](<Screenshots/vault_Screenshot 2024-10-31 124605.png>)
+
 ##### Encryption
 
 To protect sensitive data at rest, AES-GCM-256 is used to handle password encryption in the app. All encryption is handled client side with unique key derived via PBKDF2 from the users password, salted with their username to avoid rainbow table attacks. Using a unique key per user versus using a singular encryption key in the backend is intended to avoid a single point of failure. If the singular key is exposed by either an outsider- or insider threat, the entire userbase's credentials would be compromised. The derived user key replicable only by the user, as it is salted with a unique username. Of course, that is if they utilize strong and unique master credentials for the password manager. The key is stored in session storage, to avoid persisting it for longer than necesarry.

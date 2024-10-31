@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -13,6 +14,8 @@ using PM_Security.Hasher;
 using PM_Application.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
 
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
@@ -50,6 +53,8 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 builder.Services.Configure<HashOptions>(builder.Configuration.GetSection("Hash"));
 
+
+
 // Registers dependency layers
 PM_Application.DependencyResolver.Resolver.RegisterApplicationLayer(builder.Services);
 PM_Infrastructure.DependencyResolver.Resolver.RegisterRepositoryLayer(builder.Services);
@@ -71,15 +76,26 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
     options.EnableDetailedErrors();
 });
 
-// Configure JWT Authentication to use Vault secret
-var app = builder.Build();
-string jwtSecret;
+// Load Vault secret
+var vault = new VaultService();
+var jwtSecret = await vault.GetSecretAsync("/data/jwt", "key");
+var hashSecret = await vault.GetSecretAsync("/data/hash", "key");
 
-using (var scope = app.Services.CreateScope())
+await vault.SealVaultAsync(); // Seal after keys have been retrieved
+
+// Add a custom key to JwtOptions after the configuration is loaded from appsettings.json
+builder.Services.PostConfigure<JwtOptions>(options =>
 {
-    var secretService = scope.ServiceProvider.GetRequiredService<ISecretService>();
-    jwtSecret = secretService.GetSecretAsync("secret/jwt", "key").Result;
-}
+    options.Key = jwtSecret; // Add your key dynamically here
+});
+
+
+// Add a custom key to HashOptions after the configuration is loaded from appsettings.json
+builder.Services.PostConfigure<HashOptions>(options =>
+{
+    options.Key = hashSecret; // Add your key dynamically here
+});
+
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -135,6 +151,18 @@ builder.Services.AddCors(options =>
     );
 });
 
+// Configure JWT Authentication to use Vault secret
+var app = builder.Build();
+/*
+string jwtSecret;
+
+using (var scope = app.Services.CreateScope())
+{
+    var secretService = scope.ServiceProvider.GetRequiredService<ISecretService>();
+    jwtSecret = secretService.GetSecretAsync("/data/jwt", "key").Result;
+}
+*/
+
 // Build and configure the app
 if (app.Environment.IsDevelopment())
 {
@@ -146,7 +174,7 @@ if (app.Environment.IsDevelopment())
 using (var serviceScope = app.Services.CreateScope())
 {
     var context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
-    context.Database.EnsureCreated();
+    context.Database.Migrate();
 }
 
 // Middleware order

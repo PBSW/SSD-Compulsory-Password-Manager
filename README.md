@@ -1,39 +1,161 @@
-# Project Security Analysis
+# SSD Compulsory Assignment/Mini-Project
 
-This document outlines the security considerations, threat model, and limitations of the current implementation. The project is a backend-only solution designed for use through tools like Postman, featuring basic functionality with server-side encryption. Due to its design and implementation choices, the system is best suited for on-premise deployment within a closed network.
+This repository is a for a password manager built for Secure Software Development [per the assignment.](https://rpede.github.io/SecureSoftwareDevelopment/assignments/mini-project)
+The project was built by [Rasmus](https://github.com/sandbxk) and [Philip](https://github.com/philezad).
 
-## Threat Actors
+While the project was only made by two people, considerations for the 3- and 4-persons goals were still made. The distributed systems model was specfically made to provide a way for cross-device access to crendentials, given that the backend would be hosted in a production environment, and thus (with a bit of tweaking), be made available for a frontend/app targeting a different platform. Arguably, cross-device access would already be feasible if the system was deployed, as the Angular frontend would be accessible on almost anything with a web browser.
+____________
 
-* External attackers:
-  * Targeting misconfigured or exposed endpoints.
-  * Attempting to access encrypted data through brute-force or other means.
-* Insider threats:
-  * Malicious users with access to the system.
-* Automated threats:
-  * Bots or scripts targeting common endpoints.
-* Network eavesdroppers:
-  * Intercepting unencrypted communications if TLS is not enforced.
+- [SSD Compulsory Assignment/Mini-Project](#ssd-compulsory-assignmentmini-project)
+  - [How to run the application](#how-to-run-the-application)
+  - [Screenshots](#screenshots)
+  - [Security Model discussion](#security-model-discussion)
+    - [What are we protecting against?](#what-are-we-protecting-against)
+    - [Security Model](#security-model)
+      - [Backend Security](#backend-security)
+        - [Key handling](#key-handling)
+        - [Encryption](#encryption)
+        - [Password Hashing and Salting](#password-hashing-and-salting)
+        - [JWTs (JSON Web Tokens)](#jwts-json-web-tokens)
+        - [CORS Configuration](#cors-configuration)
+      - [Access Control](#access-control)
+      - [Frontend security](#frontend-security)
+    - [Pitfalls and limitation in security](#pitfalls-and-limitation-in-security)
 
-## Threat Scenarios
-  * Data breaches: Attackers gaining unauthorized access to encrypted passwords or master keys.
-  * Man-in-the-middle attacks: Occurring on open networks if traffic is not encrypted.
-  * Misuse of weakly configured systems: Exploiting the lack of secure key management to retrieve sensitive data.
+## How to run the application
 
-## Security Model
-### Backend Security
+The project contains two "applications", the frontend and backend, as well a a Vault. These are all dockerized and can be run with 
+```
+docker-compose up -d
+```
 
-* Encryption at Rest: Passwords are encrypted server-side, ensuring that data remains secure in the event of database access. Two distinct algorithms are used: one for the master password and another for user-stored passwords. This segmentation minimizes the impact of a compromised encryption scheme for one type of data
-* Key Handling Currently, secure key management is not implemented, and keys may be stored in application memory or configuration files. For enhanced security, all encryption keys should eventually be stored and retrieved using a secure key management solution like HashiCorp Vault, AWS KMS, or Azure Key Vault
-* Authentication: Users authenticate using a master password, which is critical for deriving encryption keys. Authentication flow should be reviewed to ensure passwords are not transmitted in plaintext.
-* Access Control Access: to the backend must be tightly controlled, with user-specific credentials to segregate data access. Endpoint permissions should be reviewed to ensure role-based access control (RBAC) is implemented, even if minimally.
-* Network Security: Deployment on a closed network mitigates many external threats but is not foolproof. Use a reverse proxy (e.g., Nginx, Apache) to enforce TLS for all communications, ensuring encryption in transit. Firewall rules should restrict access to the backend to authorized IPs within the closed network.
+## Screenshots
 
-## Pitfalls and Limitations in Security
+![alt text](<Screenshot 2024-10-10 182656.png>)
+![alt text](<Screenshot 2024-10-10 182630.png>)
+![alt text](<Screenshot 2024-10-10 182635.png>)
+![alt text](<Screenshot 2024-10-10 182645.png>)
 
-* Secure Key Handling: The current implementation lacks secure key management, leaving encryption keys potentially vulnerable in application memory or configuration files. Keys should ideally be rotated periodically, especially in production environments
-* Lack of Frontend: While the lack of a frontend reduces the attack surface, it also shifts the responsibility for secure communication entirely onto tools like Postman, which may expose sensitive data during testing.
-* TLS and Network Dependency: As the system is designed for closed network use, its reliance on network isolation creates a potential single point of failure. If TLS is not enforced, attackers within the network can intercept communications.
-* Static Encryption Schemes: Encrypting all passwords at rest is effective, but static encryption methods may become obsolete over time. There’s no support for algorithm migration, which would allow re-encryption of data with stronger algorithms in the future.
-* Brute-force Resistance: Without rate limiting or strong hashing (e.g., Argon2id), brute-force attacks against master passwords or encrypted passwords remain a potential threat.
-* Scalability and Auditability: Current design may struggle with scalability in larger environments or multi-user scenarios.
-        Lack of audit logs limits traceability of user actions and potential misuse.
+## Security Model discussion
+
+### What are we protecting against?
+
+The threat model is focused on protecting against external attackers, and data breaches. 
+External attackers might use brute-force attacks or exploit vulnerabilities to gain unauthorized access. Brute force attacks are made expensive by using a strong hashing algorithm, specifically, Argon2id. 
+Insider threats are also mostly mitigated through strong encryption of sensitive data using AES-GCM-256 on the client-side. This ensures that even if someone within the organization gains access to the database, the stored data remains encrypted and unreadable. The key is completely unknown by the server, and only reproducable with the exact cleartext master password and username. 
+
+The primary weakpoint in the system, allowing the encrypted password to be decrypted by a threat actor, would be to extract the pre-hashed password from the servers memory and use it in a rainbow-table. Afterwhich, they would need access to the database, which is not particularly hard given that a SQLite database is used in this implementation. Finding this specific users master username, they would be able to recreate the users encryption key. Splicing the cipher text and IV from the encrypted credential-password, they would then be able to decrypt it themselves. This would only compromise a single user, and a such, the implementation is also reasonably safe against insider threats, although not perfectly so.
+
+By combining these mechanisms, we safeguard user passwords and sensitive information against potential breaches.
+
+### Security Model
+
+#### Backend Security
+
+##### Key handling
+
+We now manage our encryption keys and secrets using HashiCorp Vault instead of storing them directly in the appsettings.json file. This approach offers a significant improvement in security, as sensitive information is no longer embedded within the application's configuration files. HashiCorp Vault provides robust access controls and logging, which helps protect against unauthorized access.
+
+Vault is already configured to run in production mode, so that the data is persisted during development. When setting the entire system up in a production environment, new key fragements should be generated for Vault.
+
+The Vault will always be sealed, meaning it cannot be accessed, even with a "root" access token. It will only ever briefly be unsealed when starting up the application to retrieve the necesarry keys, afterwhich it will immediatly be sealed again.
+
+Unsealing the vault and accessing means multiple unseal keys and an access token must be provided. These must be provided in the "*vault_keys.json* file in the root of the API-project. This file is not under version control, and not available in the repository. When running the application for the first time, you must remove the "data" directory with in the "vault" folder present at the root of this repository. You must initialize vault yourself and provide your own unseal keys and token in the file with the following format:
+
+```
+{
+  "Keys": [
+    "<unseal-key-1>",
+    "<unseal-key-2>",
+    "<unseal-key-3>",
+    "<unseal-key-4>",
+    "<unseal-key-5>"
+  ],
+  "Token": "<access-token>"
+}
+```
+
+The application expects the keys to be available in the KeyValue secret engine at both "/data/jwt" and "/data/hash". Setup keys for these paths within Vault. Use the following images for examples:
+
+![Vault secret path example 1](<Screenshots/vault_Screenshot 2024-10-31 124556.png>)
+![Vault secret path example 2](<Screenshots/vault_Screenshot 2024-10-31 124605.png>)
+
+##### Encryption
+
+To protect sensitive data at rest, AES-GCM-256 is used to handle password encryption in the app. All encryption is handled client side with unique key derived via PBKDF2 from the users password, salted with their username to avoid rainbow table attacks. Using a unique key per user versus using a singular encryption key in the backend is intended to avoid a single point of failure. If the singular key is exposed by either an outsider- or insider threat, the entire userbase's credentials would be compromised. The derived user key replicable only by the user, as it is salted with a unique username. Of course, that is if they utilize strong and unique master credentials for the password manager. The key is stored in session storage, to avoid persisting it for longer than necesarry.
+
+A random IV is generated when encrypting a password, which is stored in the same string as the cipher. When decrypting a password, the cipher text and IV are seperated, and subsequently decrypted with the users key. 
+
+##### Password Hashing and Salting
+
+Password hashing is essential to ensure that even if an attacker gains access to the database, they cannot easily retrieve user passwords. Our implementation utilizes Argon2id, which is currently among the strongest hashing algorithms available.
+
+Each password is combined with a unique salt value before being hashed. The salt is a random string that is stored alongside the hashed password in the database. The purpose of the salt is to ensure that identical passwords result in different hash values, thereby protecting against rainbow table attacks and making it significantly harder for attackers to crack passwords using precomputed hashes.
+
+However, the password being hashed in the backend is not the plaintext password. Before sending the password to backend, the frontend will do three rounds of SHA-256 hashes (one of which including the username) on the password to avoid cleartext traffic of the master password, which could be extracted from memory by threat actors. Doing three rounds, and throwing the username into the equation as well should protect against rainbow-table attacks, although SHA-256 is by design intended to be fast, and not secure. So there might be improvements to be made with another hashing algorithm.
+
+For our implementation:
+
+- Frontend hashing: The password goes through an unsalted SHA-256 hash. 
+- Salt Generation: A unique salt is generated for each password when it is created or changed.
+- Hashing: The salted password is hashed using the Argon2id algorithm with a high number of iterations, which makes brute-force attacks computationally expensive.
+- Storing: Only the salt and the hashed password are stored in the database, and not the plaintext password itself.
+
+##### JWTs (JSON Web Tokens)
+
+JWTs are used to handle authentication in our application. When a user logs in, a JWT is generated and signed using a secret key. This token is then sent to the client, which stores it for subsequent API requests. The client includes this token in the Authorization header of each request to authenticate itself with the backend.
+
+Key features of JWT implementation:
+
+- Signature Verification: Each token is signed using a secure algorithm (HMAC SHA-256) to ensure its integrity. The backend verifies this signature to prevent tampering.
+- Expiration: Tokens have a defined expiration time to limit their lifetime and reduce the risk of misuse. Ideally the lifetime would be short, with a refresher, but for simplicity sake it is currently eight hours.
+- Claims: The token contains claims such as the user's ID, name, and roles to identify the user without repeatedly querying the database.
+
+By using JWTs, we ensure that sensitive information is not included in requests and responses, minimizing the chances of a data leak.
+
+##### CORS Configuration
+
+As this is a distributed system, CORS must be configured in order for the frontend and backend to communicate. Since only these two should be in communication for in the systems current state, a single policy for allowing a `http://localhost:4200` origin with any method is active. Should a third party attempt to make requests to the backend, they would be met with CORS errors.
+
+
+
+#### Access Control
+
+The CredentialsController uses Access Control mechanisms to ensure users are only reading and writing **their own** data, and not someone elses. One of these mechanisms is simply by relying on fetching the user id from the token (which would already be validated at this point), rather than from a route or body.
+
+A seperate policy, *OwnDataPolocy*, was also created to ensure the exact instance of ServiceCredential the user is attempting to either Read, Delete or Update, is actually owned by them.
+
+Pitfalls and Limitations in Security
+
+Despite our best efforts to secure the application, certain limitations and potential pitfalls exist that should be acknowledged:
+
+- Cross-Site Scripting (XSS) Risks: As with any web-based frontend, there is a risk of XSS attacks. Proper validation, encoding, and sanitization of user input in the frontend is crucial to prevent these attacks.
+
+- Token-based Security Limitations: While JWTs provide a convenient mechanism for stateless authentication, they also have some limitations:
+If a token is compromised, it can be used until it expires. Implementing token revocation or short-lived tokens with refresh tokens could mitigate this issue.
+Token storage on the client side should be secured to prevent theft. It's recommended to use secure, HTTP-only cookies or secure storage mechanisms.
+
+- Lack of Rate Limiting: To protect against brute-force attacks, rate limiting should be applied to login endpoints and sensitive operations. Currently, this is not explicitly implemented but is recommended for production use.
+
+
+#### Frontend security
+
+Various methods were used to help secure the frontend. JSON Web Tokens were naturally implemented as a core part of the frontend security, given that this is crucial for communicating with the backend. But the token claims are also validated in the frontend, to help avoid any potentially manipulated token. The application also uses the auth system to protect the `/home` route, where the user can find their stored credentials. It is at this point only, that the password of a users credential is decrypted.
+
+Fetching all the users credentials is of course necesarry to provide them with a list of their data, but only a partial of the data model is recived as passwords are omitted. The full "ServiceCredential" object is recived upon a *Get* for a single ServiceCredential, when the given ServiceCredential is opened. This part is also done through Modals, to avoid any chance of path-traversal to another users credentials.
+
+### Pitfalls and limitation in security
+
+Ideally, the system should also require stronger master passwords for the password vault, as well a 2-factor authentication.
+
+As mentioned elsewhere, the pre-hashed password in the frontend could be improved had a  stronger encryption algorithm such a Bcrypt been utilized.
+
+Although the solution is completely dockerized, it still uilizes a SQLite database, which is suboptimal for security as it provides no access-control mechanisms. While perfectly fine for development environments, an SQL Server instance should be spun up with non-default credentials to further reduce the risk of insider threats.
+
+While key handling is done somewhat correctly with Hashicorp Vault, the current implementation will only fetch keys once at application startup, and then have them stored in memory as cleartext. This is still not entirely ideal on two fronts:
+1. The keys are still stored within memory, when they might have been more secure if they were only fetched as needed. This would however require continously unsealing, authenticating, fetching, and sealing with Vault, in which it could likely still be extracted from memory with the right timing.
+2. The current implementation does not support key rotation, neither in downtime nor runtime. Runtime key-rotation would be vital in a production environment to further protect against any insider threats that may attempt to steal the current key.
+
+Another consequence of having it dockerized is that HTTPS is not available the same way on a Release build as a Development build on the backend. As such communication occurs over HTTP rather than HTTPS which is not ideal. This can be mitigated by using a reverse proxy in front of the backend, with a valid certificate attached.
+
+There are still limits as to what can be protected against. In a situation wherein a user's PC has already been infiltrated by a malicous actor, this actor would be able to retrieve the users key for themselves if a session is active, or even just extract their master login credentials with a KeyLogger.
